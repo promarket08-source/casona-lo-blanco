@@ -67,7 +67,10 @@ async function setCommands() {
         { command: 'gastos', description: '📊 Total gastado por categoría' },
         { command: 'fotos', description: '🖼️ Últimas imágenes del proyecto' },
         { command: 'buscar', description: '🔍 Buscar en la base de datos' },
-        { command: 'stats', description: '📈 Estadísticas del proyecto' }
+        { command: 'stats', description: '📈 Estadísticas del proyecto' },
+        { command: 'allow', description: '[Dueño] Autorizar usuario @username' },
+        { command: 'deny', description: '[Dueño] Quitar acceso a usuario' },
+        { command: 'allowlist', description: '[Dueño] Ver usuarios autorizados' }
     ];
     return api('setMyCommands', { commands: fullCmds });
 }
@@ -101,6 +104,11 @@ function cmdStart(chatId) {
 /fotos — Últimas imágenes
 /stats — Estadísticas del proyecto
 /buscar + texto — Busca en la BD
+
+<b>🔐 ADMIN (solo dueño):</b>
+/allow @usuario — Autorizar persona
+/deny @usuario — Quitar acceso
+/allowlist — Ver autorizados
 
 👥 Comparte este bot: @sanbernardo360_bot`;
     send(chatId, msg);
@@ -518,6 +526,87 @@ function procesarLink(chatId, text, msg) {
     return false;
 }
 
+// ====== COMANDOS DE ADMINISTRACIÓN ======
+
+function cmdAllowList(chatId) {
+    if (!db.esOwner(chatId)) return send(chatId, '⛔ Solo el dueño del bot puede usar este comando.');
+    const info = db.listarAutorizados();
+    const data = db.leer();
+    let msg = `🔐 <b>Usuarios Autorizados</b>\n\n`;
+    msg += `👑 <b>Dueño:</b> ${data.meta?.ownerNombre || chatId} (${info.owner})\n\n`;
+    if (info.lista.length > 1) {
+        msg += `<b>Autorizados (${info.lista.length - 1}):</b>\n`;
+        info.lista.forEach((id, i) => {
+            if (id !== info.owner) msg += `${i}. ID: ${id}\n`;
+        });
+    } else {
+        msg += `No hay otros usuarios autorizados aún.\n`;
+    }
+    msg += `\n📌 Para agregar: /allow <i>@username</i> o <i>chatId</i>`;
+    send(chatId, msg);
+}
+
+async function cmdAllow(chatId, args, msg) {
+    if (!db.esOwner(chatId)) return send(chatId, '⛔ Solo el dueño del bot puede usar este comando.');
+    if (!args) return send(chatId, 'ℹ️ Usa: /allow @username o /allow 123456789');
+
+    // Si es @username, intentar resolverlo
+    const target = args.replace('@', '').trim();
+    let targetId = parseInt(target);
+
+    if (isNaN(targetId)) {
+        // Intentar resolver username a chatId
+        try {
+            const token = process.env.TELEGRAM_BOT_TOKEN;
+            const resolveBody = JSON.stringify({});
+            const result = await new Promise((resolve, reject) => {
+                const req = https.request({
+                    hostname: 'api.telegram.org',
+                    path: `/bot${token}/getUpdates`,
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Content-Length': 2 }
+                }, res => {
+                    let chunks = [];
+                    res.on('data', c => chunks.push(c));
+                    res.on('end', () => { try { resolve(JSON.parse(Buffer.concat(chunks).toString())); } catch { resolve(null); } });
+                });
+                req.on('error', () => resolve(null));
+                req.write('{}');
+                req.end();
+            });
+
+            // Buscar el username en los mensajes recientes
+            if (result?.result) {
+                for (const upd of result.result) {
+                    const from = upd.message?.from;
+                    if (from && (from.username?.toLowerCase() === target.toLowerCase() || from.first_name?.toLowerCase() === target.toLowerCase())) {
+                        targetId = from.id;
+                        break;
+                    }
+                }
+            }
+        } catch {}
+    }
+
+    if (isNaN(targetId)) {
+        return send(chatId, `❌ No pude encontrar a "${target}". Pídele que primero me envíe un mensaje al bot y luego intenta de nuevo.`);
+    }
+
+    db.agregarAutorizado(targetId, target);
+    send(chatId, `✅ <b>Usuario autorizado!</b>\nID: ${targetId}\nYa puede usar el bot.`);
+}
+
+function cmdDeny(chatId, args) {
+    if (!db.esOwner(chatId)) return send(chatId, '⛔ Solo el dueño del bot puede usar este comando.');
+    if (!args) return send(chatId, 'ℹ️ Usa: /deny @username o /deny 123456789');
+
+    const target = parseInt(args.replace('@', '').trim());
+    if (isNaN(target)) return send(chatId, '❌ Especifica un ID numérico o @username');
+
+    db.quitarAutorizado(target);
+    send(chatId, `✅ Usuario ${target} removido del acceso.`);
+}
+
 // ====== HANDLER PRINCIPAL ======
 async function handleUpdate(update) {
     const msg = update.message;
@@ -526,10 +615,27 @@ async function handleUpdate(update) {
     const chatId = msg.chat.id;
     const text = msg.text?.trim();
     const caption = msg.caption?.trim();
+    const nombre = msg.from?.first_name || 'Usuario';
+
+    // Registrar al primer usuario como dueño
+    db.setOwner(chatId, nombre);
+
+    // Verificar autorización (excluir comandos de admin)
+    if (!db.esAutorizado(chatId)) {
+        const data = db.leer();
+        if (data.owner === chatId) {
+            // El owner siempre tiene acceso
+        } else {
+            // Notificar al dueño que alguien intentó usar el bot
+            if (data.owner) {
+                send(data.owner, `🚫 <b>Intento de acceso denegado</b>\n👤 ${nombre} (ID: ${chatId})\n📝 "${text || 'foto/documento'}"\n\nPara autorizar: /allow ${chatId}`);
+            }
+            return send(chatId, `🔐 <b>Acceso restringido</b>\n\nEste bot es privado del proyecto Casona Lo Blanco.\n\nSi eres parte del equipo, pide al dueño que te autorice.`);
+        }
+    }
 
     // === FOTOS ===
     if (msg.photo) {
-        // Si el caption menciona boleta/gasto/pago
         if (caption && /boleta|gasto|pago|factura|recibo/i.test(caption)) {
             return await procesarBoleta(chatId, msg.photo, caption, msg);
         }
@@ -569,6 +675,9 @@ async function handleUpdate(update) {
     if (text === '/fotos') return cmdFotos(chatId);
     if (text === '/stats') return cmdStats(chatId);
     if (text.startsWith('/buscar ')) return cmdBuscar(chatId, text.replace('/buscar ', ''));
+    if (text === '/allowlist' || text === '/lista') return cmdAllowList(chatId);
+    if (text.startsWith('/allow ')) return await cmdAllow(chatId, text.replace('/allow ', ''), msg);
+    if (text.startsWith('/deny ')) return cmdDeny(chatId, text.replace('/deny ', ''));
 
     // === LINKS (YouTube, Instagram, etc) ===
     const linkResult = procesarLink(chatId, text, msg);

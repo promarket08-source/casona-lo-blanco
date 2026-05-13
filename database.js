@@ -20,7 +20,9 @@ function estructuraBase() {
         notas: [],
         eventos: [],
         materiales: [],
-        proveedores: []
+        proveedores: [],
+        autorizados: [],
+        owner: null
     };
 }
 
@@ -193,8 +195,62 @@ function estadisticas() {
     };
 }
 
+// ====== CONTROL DE ACCESO ======
+
+// Verificar si un chatId está autorizado
+function esAutorizado(chatId) {
+    const data = leer();
+    // Si no hay owner, cualquiera puede usar (primera vez)
+    if (!data.owner) return true;
+    return data.autorizados.includes(chatId) || data.owner === chatId;
+}
+
+// Registrar el primer usuario como owner
+function setOwner(chatId, nombre) {
+    const data = leer();
+    if (!data.owner) {
+        data.owner = chatId;
+        data.autorizados.push(chatId);
+        if (!data.meta) data.meta = {};
+        data.meta.ownerNombre = nombre || 'Owner';
+        guardar(data);
+    }
+    return data.owner === chatId;
+}
+
+// Verificar si es el owner
+function esOwner(chatId) {
+    const data = leer();
+    return data.owner === chatId;
+}
+
+// Agregar usuario autorizado
+function agregarAutorizado(chatId, nombre) {
+    const data = leer();
+    if (!data.autorizados.includes(chatId)) {
+        data.autorizados.push(chatId);
+        guardar(data);
+    }
+    return true;
+}
+
+// Quitar usuario autorizado
+function quitarAutorizado(chatId) {
+    const data = leer();
+    data.autorizados = data.autorizados.filter(id => id !== chatId);
+    guardar(data);
+    return true;
+}
+
+// Listar autorizados
+function listarAutorizados() {
+    const data = leer();
+    return { owner: data.owner, lista: data.autorizados };
+}
+
 module.exports = {
     leer, guardar,
     agregarBoleta, agregarPago, agregarImagen, agregarVideo, agregarRed, agregarNota,
-    resumenFinanciero, ultimosRegistros, buscar, estadisticas
+    resumenFinanciero, ultimosRegistros, buscar, estadisticas,
+    esAutorizado, setOwner, esOwner, agregarAutorizado, quitarAutorizado, listarAutorizados
 };

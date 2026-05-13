@@ -102,7 +102,7 @@ function cmdStart(chatId) {
 /stats — Estadísticas del proyecto
 /buscar + texto — Busca en la BD
 
-👥 Comparte este bot: @sanbernardo_360_bot`;
+👥 Comparte este bot: @sanbernardo360_bot`;
     send(chatId, msg);
 }
 
@@ -285,7 +285,7 @@ https://minideptos-lo-blanco.vercel.app/minideptos#proveedores
 https://github.com/promarket08-source/casona-lo-blanco
 
 ━━━━━━━━━━━━━━━━━━━━━━
-👥 Bot compartido: @sanbernardo_360_bot`;
+👥 Bot compartido: @sanbernardo360_bot`;
     send(chatId, msg);
 }
 

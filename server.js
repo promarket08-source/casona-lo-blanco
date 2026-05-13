@@ -276,7 +276,7 @@ async function pollTelegram() {
             for (const update of result.result) {
                 if (update.update_id > lastUpdateId) {
                     lastUpdateId = update.update_id;
-                    telegram.handleUpdate(update).catch(() => {});
+                    try { await telegram.handleUpdate(update); } catch {}
                 }
             }
         }
@@ -285,7 +285,11 @@ async function pollTelegram() {
 
 // Webhook endpoint (para cuando el server sea público)
 app.post('/telegram-webhook', express.json(), async (req, res) => {
-    telegram.handleUpdate(req.body).catch(() => {});
+    try {
+        await telegram.handleUpdate(req.body);
+    } catch (e) {
+        console.error('Webhook error:', e.message);
+    }
     res.send('ok');
 });
 
@@ -307,7 +311,7 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('║  🏠 Landing:   http://localhost:3001/minideptos           ║');
     console.log('║  💹 API Phased: http://localhost:3001/api/finanzas-phased║');
     console.log('║  🔍 Health:    http://localhost:3001/health               ║');
-    console.log('║  🤖 Telegram:  @sanbernardo_360_bot                      ║');
+    console.log('║  🤖 Telegram:  @sanbernardo360_bot                       ║');
     console.log('╠═══════════════════════════════════════════════════════════╣');
     console.log('║  📍 Carpeta:', BASE);
     console.log('╚═══════════════════════════════════════════════════════════╝');

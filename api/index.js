@@ -127,7 +127,11 @@ function setupRoutes() {
     // Webhook de Telegram
     const telegram = require('../telegram.js');
     app.post('/telegram-webhook', async (req, res) => {
-        telegram.handleUpdate(req.body).catch(() => {});
+        try {
+            await telegram.handleUpdate(req.body);
+        } catch (e) {
+            console.error('Webhook error:', e.message);
+        }
         res.send('ok');
     });
 

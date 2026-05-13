@@ -240,8 +240,11 @@ app.get('*', (req, res) => {
 // ====== TELEGRAM BOT — @sanbernardo_360_bot ======
 
 const telegram = require('./telegram.js');
+const db_bot = require('./database.js');
 
-let lastUpdateId = 0;
+// Leer último update ID desde DB (persiste entre reinicios)
+let meta = db_bot.leer().meta;
+let lastUpdateId = meta.lastUpdateId || 0;
 
 async function pollTelegram() {
     try {
@@ -276,6 +279,12 @@ async function pollTelegram() {
             for (const update of result.result) {
                 if (update.update_id > lastUpdateId) {
                     lastUpdateId = update.update_id;
+                    // Persistir en DB para sobrevivir reinicios
+                    try {
+                        const data = db_bot.leer();
+                        data.meta.lastUpdateId = lastUpdateId;
+                        db_bot.guardar(data);
+                    } catch {}
                     try { await telegram.handleUpdate(update); } catch {}
                 }
             }
@@ -321,9 +330,9 @@ app.listen(PORT, '0.0.0.0', () => {
     telegram.setCommands().then(() => {
         console.log('🤖 Bot Telegram comandos configurados: @sanbernardo_360_bot');
     }).catch(() => {});
-    lastUpdateId = 0;
+    // No reiniciar lastUpdateId - usar el guardado en DB
     setInterval(pollTelegram, 3000);
-    console.log('🤖 Polling Telegram activo (c/3s)');
+    console.log('🤖 Polling Telegram activo (c/3s) (offset=' + lastUpdateId + ')');
 });
 
 process.on('SIGINT', () => {

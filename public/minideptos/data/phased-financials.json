@@ -1,0 +1,151 @@
+{
+  "meta": {
+    "version": "3.0",
+    "lastUpdate": "2026-05-12",
+    "project": "Casona Lo Blanco",
+    "strategy": "Casona 2 pisos (216m²) + 2 deptos arriendo (54m² total) + patio (18m²)",
+    "terrain": "9m × 17m = 153m²",
+    "totalUnits": 3,
+    "totalInvestment": 85000000
+  },
+  "recommendedApproach": {
+    "label": "⭐ Todo de Una Vez",
+    "description": "Construir casona 2 pisos + 2 deptos arriendo simultáneamente. Steel Frame. 5 meses de construcción. Vives gratis desde el mes 6.",
+    "phases": {
+      "fase1": {
+        "name": "🏗️ Construcción Completa — Casona + 2 Deptos",
+        "months": "Meses 1-5",
+        "unitsBuilt": 3,
+        "unitsForRent": 2,
+        "investment": 85000000,
+        "details": {
+          "demolicion": 7000000,
+          "permisos": 5400000,
+          "casonaSteelFrame": 38000000,
+          "deptosArriendo": 14000000,
+          "instalaciones": 9500000,
+          "materiales": 6000000,
+          "contingencia": 4000000,
+          "supervision": 1100000
+        },
+        "incomeFromMonth": 6,
+        "monthlyIncome": 700000,
+        "monthlyExpenses": 120000,
+        "netMonthlyFromMonth6": 580000,
+        "annualNetYear1": 6960000
+      },
+      "totalInvestment": 85000000,
+      "fullCapacityAt": "Mes 6",
+      "fullCapacityRentals": 2,
+      "longTermMonthlyIncome": 700000,
+      "longTermMonthlyExpenses": 120000,
+      "longTermMonthlyNet": 580000,
+      "paybackFromStart": "4.5 años",
+      "irr5Year": "18%",
+      "cumulative5YearNet": 37850000,
+      "terrainAppreciation5yr": 18500000,
+      "casonaValue5yr": 65000000,
+      "totalValueYr5": 141500000
+    }
+  },
+  "approaches": {
+    "allAtOnce": {
+      "label": "🏗️ Todo de Una Vez",
+      "phases": [
+        {
+          "name": "Construcción Completa (Meses 1-5)",
+          "investment": 85000000,
+          "rentableUnits": 2,
+          "monthlyIncome": 700000,
+          "monthlyExpenses": 120000,
+          "netMonthly": 580000,
+          "keyBenefit": "Vives gratis + $700K/mes desde mes 6"
+        }
+      ],
+      "totalInvestment": 85000000,
+      "payback": "4.5 años",
+      "irr": "18%",
+      "advantages": [
+        "✅ Vives gratis desde el mes 6",
+        "✅ Inversión única $85M — sin fases adicionales",
+        "✅ 2 deptos arriendo = $700K/mes desde el día 1",
+        "✅ Mejor TIR (~18%) y payback más rápido (~4.5 años)",
+        "✅ Solo un proceso de permisos"
+      ],
+      "disadvantages": [
+        "⚠️ Requiere $85M de capital inicial",
+        "⚠️ 5 meses sin ingreso durante construcción"
+      ]
+    },
+    "deptosFirst": {
+      "label": "📦 Deptos Primero",
+      "phases": [
+        {
+          "name": "Fase 1 (Meses 1-3): 2 Deptos Arriendo",
+          "investment": 27000000,
+          "rentableUnits": 2,
+          "monthlyIncome": 700000,
+          "monthlyExpenses": 80000,
+          "netMonthly": 620000,
+          "keyBenefit": "Ingreso desde mes 4"
+        },
+        {
+          "name": "Fase 2 (Meses 6-10): Casona 2 pisos",
+          "investment": 62000000,
+          "rentableUnits": 0,
+          "monthlyIncome": 700000,
+          "monthlyExpenses": 200000,
+          "netMonthly": 500000,
+          "keyBenefit": "Casona lista desde mes 10"
+        }
+      ],
+      "totalInvestment": 89000000,
+      "payback": "5.8 años",
+      "irr": "15.5%",
+      "advantages": ["✅ Inversión inicial baja ($27M)", "✅ Ingreso desde mes 4"],
+      "disadvantages": ["❌ Más caro total ($89M)", "❌ 2 procesos de permisos"]
+    },
+    "casonaFirst": {
+      "label": "🏠 Casona Primero",
+      "phases": [
+        {
+          "name": "Fase 1 (Meses 1-5): Casona",
+          "investment": 62000000,
+          "rentableUnits": 0,
+          "monthlyIncome": 0,
+          "monthlyExpenses": 100000,
+          "netMonthly": -100000,
+          "keyBenefit": "Casona lista rápido"
+        },
+        {
+          "name": "Fase 2 (Meses 8-10): 2 Deptos",
+          "investment": 27000000,
+          "rentableUnits": 2,
+          "monthlyIncome": 700000,
+          "monthlyExpenses": 120000,
+          "netMonthly": 580000,
+          "keyBenefit": "Ingreso desde mes 11"
+        }
+      ],
+      "totalInvestment": 89000000,
+      "payback": "6.2 años",
+      "irr": "14%",
+      "advantages": ["✅ Casona lista primero"],
+      "disadvantages": ["❌ 10 meses sin ingreso"]
+    }
+  },
+  "comparisonSummary": {
+    "metrics": [
+      { "metric": "Inversión inicial", "allAtOnce": "$85M", "deptosFirst": "$27M ⭐", "casonaFirst": "$62M", "winner": "Deptos Primero" },
+      { "metric": "Flujo positivo desde", "allAtOnce": "Mes 6 ⭐", "deptosFirst": "Mes 4 ⭐", "casonaFirst": "Mes 11", "winner": "Deptos Primero" },
+      { "metric": "TIR anual", "allAtOnce": "18% ⭐", "deptosFirst": "15.5%", "casonaFirst": "14%", "winner": "Todo de Una Vez" },
+      { "metric": "Payback", "allAtOnce": "4.5 años ⭐", "deptosFirst": "5.8 años", "casonaFirst": "6.2 años", "winner": "Todo de Una Vez" },
+      { "metric": "Riesgo financiero", "allAtOnce": "Medio", "deptosFirst": "Bajo ⭐", "casonaFirst": "Medio-Alto", "winner": "Deptos Primero" },
+      { "metric": "Retorno 5 años", "allAtOnce": "$37.8M", "deptosFirst": "$37.1M", "casonaFirst": "$33.5M", "winner": "Todo de Una Vez" }
+    ],
+    "finalRecommendation": {
+      "winner": "⭐ Todo de Una Vez",
+      "reason": "Mejor TIR (~18%), payback más rápido (~4.5 años), vives gratis desde el mes 6 con $700K/mes de ingreso."
+    }
+  }
+}

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Control — emprende360</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+.dashboard { padding: var(--space-3xl) 0; }
+.status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-3xl); }
+.status-card {
+    background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg); padding: var(--space-xl);
+}
+.status-card h3 { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text-bright); margin-bottom: var(--space-lg); display:flex; align-items:center; gap:var(--space-sm); }
+.status-row { display: flex; align-items: center; gap: var(--space-md); padding: 10px var(--space-md); background: rgba(255,255,255,0.02); border-radius: var(--radius-sm); margin-bottom: 6px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.status-dot.green { background: var(--accent-green); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+.status-dot.yellow { background: var(--accent-amber); box-shadow: 0 0 8px rgba(245,158,11,0.4); }
+.status-dot.blue { background: var(--accent-blue); box-shadow: 0 0 8px rgba(59,130,246,0.4); }
+.status-dot.red { background: var(--accent-rose); box-shadow: 0 0 8px rgba(244,63,94,0.4); }
+.status-dot.gray { background: var(--text-muted); }
+.status-label { font-size: 13px; color: var(--text-primary); flex: 1; }
+.status-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-3xl); }
+.metric-card {
+    background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center;
+}
+.metric-card .m-icon { font-size: 40px; margin-bottom: var(--space-sm); }
+.metric-card .m-value { font-family: var(--font-display); font-size: 2rem; font-weight: 800; }
+.metric-card .m-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+.timeline-section { margin-bottom: var(--space-3xl); }
+.timeline { position: relative; padding-left: 40px; }
+.timeline::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--accent-blue), var(--accent-purple), transparent); }
+.timeline-item { position: relative; margin-bottom: var(--space-xl); }
+.timeline-item::before { content: ''; position: absolute; left: -33px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--gradient-accent); border: 3px solid var(--bg-primary); z-index: 2; box-shadow: var(--shadow-glow); }
+.timeline-item .month { font-size: 11px; color: var(--accent-blue); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+.timeline-item h4 { font-size: 16px; font-weight: 600; color: var(--text-bright); margin-bottom: 4px; }
+.timeline-item p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.timeline-item.done .month { color: var(--accent-green); }
+.timeline-item.done h4 { color: var(--text-muted); }
+.timeline-item.done::before { background: rgba(16,185,129,0.4); }
+
+.budget-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.budget-table th { padding: 14px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-subtle); }
+.budget-table td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+.budget-table tr:hover td { background: rgba(59,130,246,0.03); }
+.budget-table tr:last-child td { border-bottom: none; font-weight: 700; background: rgba(59,130,246,0.05); }
+
+.bar-chart-h { display: flex; flex-direction: column; gap: 14px; }
+.bar-row { display: flex; align-items: center; gap: 12px; }
+.bar-label-min { width: 140px; font-size: 13px; color: var(--text-secondary); text-align: right; flex-shrink: 0; }
+.bar-track { flex: 1; height: 28px; background: rgba(255,255,255,0.04); border-radius: 6px; overflow: hidden; position: relative; }
+.bar-fill { height: 100%; border-radius: 6px; background: var(--gradient-accent); transition: width 1.5s ease; display: flex; align-items: center; padding-left: 10px; font-size: 12px; font-weight: 600; color: white; }
+.bar-value { font-size: 13px; font-weight: 600; color: var(--text-primary); width: 70px; flex-shrink: 0; }
+
+.risk-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.risk-table th { padding: 12px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-subtle); }
+.risk-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.risk-table td:first-child { font-weight: 500; color: var(--text-primary); }
+.p-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.p-high { background: rgba(244,63,94,0.15); color: #fda4af; }
+.p-medium { background: rgba(245,158,11,0.15); color: #fcd34d; }
+.p-low { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+
+.nav-bar { display: flex; gap: var(--space-sm); padding: var(--space-xl) 0; flex-wrap: wrap; }
+.nav-bar a { padding: 8px 20px; border-radius: var(--radius-full); font-size: 13px; font-weight: 500; color: var(--text-secondary); background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); transition: all 0.3s; text-decoration: none; }
+.nav-bar a:hover, .nav-bar a.active { background: rgba(59,130,246,0.1); color: var(--accent-blue); border-color: rgba(59,130,246,0.3); }
+</style>
+</head>
+<body>
+
+<nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,10,31,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);padding:0 var(--space-lg);height:64px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:var(--space-sm)">
+        <span style="font-size:24px">🏗️</span>
+        <span style="font-family:var(--font-display);font-size:18px;font-weight:800;background:var(--gradient-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent">emprende360</span>
+    </div>
+    <div style="display:flex;gap:var(--space-sm);align-items:center">
+        <a href="/" class="btn btn-outline btn-sm" style="font-size:13px">🏠 Inicio</a>
+        <a href="/panel" class="btn btn-primary btn-sm" style="font-size:13px">📊 Panel</a>
+        <a href="/projects" class="btn btn-outline btn-sm" style="font-size:13px">📋 Proyectos</a>
+        <a href="/minideptos" class="btn btn-outline btn-sm" style="font-size:13px">🏠 Lo Blanco</a>
+    </div>
+</nav>
+
+<div class="container dashboard" style="padding-top:80px">
+
+    <!-- HERO -->
+    <div class="section-header animate-in">
+        <p class="section-label">Control Central</p>
+        <h2 class="section-title">📊 Dashboard de <span class="gradient-text">Proyectos</span></h2>
+        <p class="section-subtitle">Monitorea en tiempo real el estado de todos los proyectos de la agencia emprende360</p>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="stat-cards" style="margin-top:var(--space-3xl)">
+        <div class="stat-card glow-ring animate-in animate-in-delay-1">
+            <div class="stat-icon">🏗️</div>
+            <div class="stat-value">4</div>
+            <div class="stat-label">Proyectos Activos</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-2">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">$185M+</div>
+            <div class="stat-label">Inversión Portafolio</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-3">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value">18-24%</div>
+            <div class="stat-label">Rentabilidad Promedio</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-4">
+            <div class="stat-icon">🏠</div>
+            <div class="stat-value">11</div>
+            <div class="stat-label">Unidades Operativas</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-5">
+            <div class="stat-icon">✨</div>
+            <div class="stat-value">25%</div>
+            <div class="stat-label">Avance Lo Blanco</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-5">
+            <div class="stat-icon">🔄</div>
+            <div class="stat-value">8/90 días</div>
+            <div class="stat-label">Plazo Ejecución</div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- STATUS SECTION -->
+    <div class="section-header animate-in animate-in-delay-2">
+        <p class="section-label">Estado del Proyecto</p>
+        <h2 class="section-title">🏠 Casona <span class="gradient-text">Lo Blanco</span></h2>
+    </div>
+
+    <div class="status-grid">
+        <!-- ESTADO GENERAL -->
+        <div class="status-card">
+            <h3>📋 Progreso General</h3>
+
+            <div class="status-row"><div class="status-dot green"></div><span class="status-label">Documentación del terreno</span><span class="status-badge p-low">✅ Listo</span></div>
+            <div class="status-row"><div class="status-dot green"></div><span class="status-label">Análisis de mercado (12 proveedores)</span><span class="status-badge p-low">✅ Listo</span></div>
+            <div class="status-row"><div class="status-dot green"></div><span class="status-label">Análisis financiero + ROI</span><span class="status-badge p-low">✅ Listo</span></div>
+            <div class="status-row"><div class="status-dot green"></div><span class="status-label">Plano 3D y distribución</span><span class="status-badge p-low">✅ Listo</span></div>
+            <div class="status-row"><div class="status-dot green"></div><span class="status-label">Perfiles de clientes</span><span class="status-badge p-low">✅ Listo</span></div>
+            <div class="status-row"><div class="status-dot green"></div><span class="status-label">Landing page creada</span><span class="status-badge p-low">✅ Listo</span></div>
+            <div class="status-row"><div class="status-dot yellow"></div><span class="status-label">Certificado CIP</span><span class="status-badge p-medium">🟡 Pendiente</span></div>
+            <div class="status-row"><div class="status-dot yellow"></div><span class="status-label">Estudio de mecánica de suelos</span><span class="status-badge p-medium">🟡 Pendiente</span></div>
+            <div class="status-row"><div class="status-dot yellow"></div><span class="status-label">Contratación de arquitecto</span><span class="status-badge p-medium">🟡 Pendiente</span></div>
+            <div class="status-row"><div class="status-dot blue"></div><span class="status-label">Cotización proveedores</span><span class="status-badge p-low">🔵 En proceso</span></div>
+            <div class="status-row"><div class="status-dot red"></div><span class="status-label">Permiso edificación DOM</span><span class="status-badge p-medium">🔴 No iniciado</span></div>
+            <div class="status-row"><div class="status-dot red"></div><span class="status-label">Demolición y construcción</span><span class="status-badge p-medium">🔴 No iniciado</span></div>
+
+            <div class="progress-container" style="margin-top:var(--space-lg)">
+                <div class="progress-label"><span class="progress-text">Avance del Proyecto</span><span class="progress-value">25%</span></div>
+                <div class="progress-track"><div class="progress-fill" style="width:25%"></div></div>
+            </div>
+
+            <!-- Investment Breakdown -->
+            <div style="margin-top:var(--space-lg)">
+                <div class="progress-label"><span class="progress-text">Inversión Requerida</span><span class="progress-value">$0 de $85M</span></div>
+                <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+            </div>
+        </div>
+
+        <!-- MÉTRICAS FINANCIERAS -->
+        <div class="status-card">
+            <h3>💰 Métricas Clave</h3>
+
+            <div class="status-row"><span class="status-label">💵 Inversión Total Estimada</span><span class="status-badge" style="background:rgba(59,130,246,0.12);color:#60a5fa">$85M CLP</span></div>
+            <div class="status-row"><span class="status-label">📈 Rentabilidad Bruta Anual</span><span class="status-badge" style="background:rgba(16,185,129,0.12);color:#6ee7b7">~18%</span></div>
+            <div class="status-row"><span class="status-label">💵 Ingreso Mensual (Base)</span><span class="status-badge" style="background:rgba(124,58,237,0.12);color:#c4b5fd">$700K CLP</span></div>
+            <div class="status-row"><span class="status-label">⏱️ Payback Estimado</span><span class="status-badge" style="background:rgba(245,158,11,0.12);color:#fcd34d">~4.5 años</span></div>
+            <div class="status-row"><span class="status-label">🏘️ Casona + Deptos</span><span class="status-badge" style="background:rgba(59,130,246,0.12);color:#60a5fa">3 (216m² + 54m²)</span></div>
+            <div class="status-row"><span class="status-label">📐 Terreno</span><span class="status-badge" style="background:rgba(255,255,255,0.08);color:#e2e8f0">153 m²</span></div>
+            <div class="status-row"><span class="status-label">🏷️ Costo por m²</span><span class="status-badge" style="background:rgba(255,255,255,0.08);color:#e2e8f0">~$750K CLP</span></div>
+            <div class="status-row"><span class="status-label">⚠️ Riesgo del Proyecto</span><span class="status-badge p-low">BAJO-MEDIO</span></div>
+            <div class="status-row"><span class="status-label">🎯 Tasa de Éxito</span><span class="status-badge p-low">85%</span></div>
+            <div class="status-row"><span class="status-label">📍 Ubicación</span><span class="status-badge" style="background:rgba(255,255,255,0.08);color:#e2e8f0">San Bernardo</span></div>
+        </div>
+    </div>
+
+<!-- ESTRATEGIA PHASED -->
+    <div class="section-header animate-in animate-in-delay-3" style="margin-top:var(--space-3xl)">
+        <p class="section-label">Distribución de Inversión Escalonada</p>
+        <h2 class="section-title">💰 <span class="gradient-text">Inversión por Fases</span></h2>
+    </div>
+
+    <div class="card animate-in animate-in-delay-3">
+        <div class="bar-chart-h">
+            <div class="bar-row">
+                <div class="bar-label-min">🏗️ Casona 2 pisos (216m²)</div>
+                <div class="bar-track"><div class="bar-fill" style="width:44.7%">$38M (44.7%)</div></div>
+                <div class="bar-value">$38M</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label-min">📦 2 Deptos arriendo (54m²)</div>
+                <div class="bar-track"><div class="bar-fill" style="width:16.5%">$14M (16.5%)</div></div>
+                <div class="bar-value">$14M</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label-min">🔧 Instalaciones + Materiales</div>
+                <div class="bar-track"><div class="bar-fill" style="width:18.2%">$15.5M (18.2%)</div></div>
+                <div class="bar-value">$15.5M</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label-min">🚜 Demolición + Permisos + Contingencia</div>
+                <div class="bar-track"><div class="bar-fill" style="width:20.6%">$17.5M (20.6%)</div></div>
+                <div class="bar-value">$17.5M</div>
+            </div>
+        </div>
+        <div style="text-align:right;margin-top:var(--space-md)">
+            <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--gradient-accent)">$85M CLP</span>
+            <span style="color:var(--text-muted);font-size:13px;margin-left:var(--space-sm)">— Inversión Total Estimada</span>
+        </div>
+    </div>
+
+    <!-- COMPARATIVA ESCENARIOS -->
+    <div class="section-header animate-in animate-in-delay-3" style="margin-top:var(--space-3xl)">
+        <p class="section-label">Comparativa de Escenarios</p>
+        <h2 class="section-title">📈 <span class="gradient-text">3 Estrategias Comparadas</span></h2>
+    </div>
+
+    <div class="card animate-in animate-in-delay-3">
+        <div style="overflow-x:auto">
+        <table class="budget-table">
+            <thead>
+                <tr><th>Escenario</th><th>Inversión Total</th><th>TIR Anual</th><th>Payback</th><th>Retorno 5 años</th><th>Mejor Para</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>🚶 1 Unidad primero</td>
+                    <td>$115.2M</td>
+                    <td>16.2%</td>
+                    <td>6.8 años</td>
+                    <td>$71.2M</td>
+                    <td><span class="p-badge p-medium">Mínimo capital</span></td>
+                </tr>
+                <tr style="background:rgba(56,189,248,0.05)">
+                    <td style="font-weight:700;color:#38bdf8">⭐ 2 Unidades (RECOMENDADO)</td>
+                    <td style="font-weight:700;color:#38bdf8">$105.3M</td>
+                    <td style="font-weight:700;color:#4ade80">22.8%</td>
+                    <td style="font-weight:700;color:#4ade80">5.4 años</td>
+                    <td style="font-weight:700;color:#4ade80">$79.6M</td>
+                    <td><span class="p-badge p-low">⭐ Mejor ROI</span></td>
+                </tr>
+                <tr>
+                    <td>🏗️ Todo de una vez</td>
+                    <td>$114.6M</td>
+                    <td>18.5%</td>
+                    <td>7.8 años</td>
+                    <td>$77.3M</td>
+                    <td><span class="p-badge p-medium">Capital completo</span></td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div class="card animate-in animate-in-delay-3">
+        <div class="bar-chart-h">
+            <div class="bar-row">
+                <div class="bar-label-min">🧱 Materiales/Acabados</div>
+                <div class="bar-track"><div class="bar-fill" style="width:17.3%">17.3%</div></div>
+                <div class="bar-value">$19.8M</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label-min">🔧 Instalaciones</div>
+                <div class="bar-track"><div class="bar-fill" style="width:21.7%">21.7%</div></div>
+                <div class="bar-value">$24.9M</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label-min">🏗️ Módulos Prefab</div>
+                <div class="bar-track"><div class="bar-fill" style="width:16.8%">16.8%</div></div>
+                <div class="bar-value">$19.2M</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label-min">🛡️ Contingencias</div>
+                <div class="bar-track"><div class="bar-fill" style="width:8.8%">8.8%</div></div>
+                <div class="bar-value">$10.1M</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label-min">🚜 Demolición</div>
+                <div class="bar-track"><div class="bar-fill" style="width:6.1%">6.1%</div></div>
+                <div class="bar-value">$7.0M</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label-min">🏛️ Arquitectura/Permisos</div>
+                <div class="bar-track"><div class="bar-fill" style="width:4.7%">4.7%</div></div>
+                <div class="bar-value">$5.4M</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label-min">💡 Servicios Profesionales</div>
+                <div class="bar-track"><div class="bar-fill" style="width:2.6%">2.6%</div></div>
+                <div class="bar-value">$3.0M</div>
+            </div>
+        </div>
+        <div style="text-align:right;margin-top:var(--space-md)">
+            <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--accent-blue)">$114.6M CLP</span>
+            <span style="color:var(--text-muted);font-size:13px;margin-left:var(--space-sm)">— Total del Proyecto</span>
+        </div>
+    </div>
+
+    <!-- RENTABILITY COMPARISON -->
+    <div class="section-header animate-in animate-in-delay-4" style="margin-top:var(--space-3xl)">
+        <p class="section-label">Comparativa de Rentabilidad</p>
+        <h2 class="section-title">📈 Retorno vs <span class="gradient-text">Otras Inversiones</span></h2>
+    </div>
+
+    <div class="metric-grid">
+        <div class="metric-card">
+            <div class="m-icon">📉</div>
+            <div class="m-value" style="color:var(--text-muted)">5-7%</div>
+            <div class="m-label">Depto Usado</div>
+        </div>
+        <div class="metric-card">
+            <div class="m-icon">💳</div>
+            <div class="m-value" style="color:var(--text-muted)">10-12%</div>
+            <div class="m-label">CDT / Renta Fija</div>
+        </div>
+        <div class="metric-card glow-ring">
+            <div class="m-icon">🏠</div>
+            <div class="m-value gradient-text">22.8%</div>
+            <div class="m-label">⭐ Lo Blanco — TIR (2+4)</div>
+        </div>
+        <div class="metric-card">
+            <div class="m-icon">📊</div>
+            <div class="m-value" style="color:var(--accent-green)">23.5%</div>
+            <div class="m-label">CAGR a 5 Años</div>
+        </div>
+        <div class="metric-card">
+            <div class="m-icon">⏱️</div>
+            <div class="m-value" style="color:var(--accent-amber)">5.4 años</div>
+            <div class="m-label">Payback Escalonado</div>
+        </div>
+        <div class="metric-card">
+            <div class="m-icon">💵</div>
+            <div class="m-value" style="color:var(--accent-cyan)">$79.6M</div>
+            <div class="m-label">Retorno Neto 5 años</div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ESTRATEGIA PHASED -->
+    <div class="section-header animate-in animate-in-delay-3" style="margin-top:var(--space-3xl)">
+        <p class="section-label">Estrategia Recomendada</p>
+        <h2 class="section-title">📈 Escalamiento <span class="gradient-text">Progresivo 2+4</span></h2>
+    </div>
+
+    <div class="status-grid">
+        <div class="status-card">
+            <h3>🏠 Fase 1 — Meses 1-6 (2 Departamentos)</h3>
+            <div class="status-row"><span class="status-label">Inversión Fase 1</span><span class="status-badge" style="background:rgba(59,130,246,0.12);color:#60a5fa">$51.4M CLP</span></div>
+            <div class="status-row"><div class="status-dot green"></div><span class="status-label">Unidad para vivir (Dpto A, PB)</span><span class="status-badge p-low">✅</span></div>
+            <div class="status-row"><div class="status-dot green"></div><span class="status-label">Unidad para arriendo (Dpto B, PB)</span><span class="status-badge p-low">✅ Desde mes 6</span></div>
+            <div class="status-row"><span class="status-label">Ingreso mensual desde mes 6</span><span class="status-badge" style="background:rgba(16,185,129,0.12);color:#6ee7b7">$330K/mes</span></div>
+            <div class="status-row"><span class="status-label">Flujo neto mensual (mes 6+)</span><span class="status-badge" style="background:rgba(16,185,129,0.12);color:#6ee7b7">+$85K</span></div>
+            <div class="status-row"><span class="status-label">Infraestructura completa</span><span class="status-badge p-low">✅ Fundaciones + escalera + troncales</span></div>
+        </div>
+
+        <div class="status-card">
+            <h3>🏗️ Fase 2 — Meses 8-14 (4 Departamentos 2do Piso)</h3>
+            <div class="status-row"><span class="status-label">Inversión Fase 2</span><span class="status-badge" style="background:rgba(124,58,237,0.12);color:#c4b5fd">$53.9M CLP</span></div>
+            <div class="status-row"><div class="status-dot blue"></div><span class="status-label">4 módulos planta alta (Dptos C,D,E,F)</span><span class="status-badge p-low">En proceso</span></div>
+            <div class="status-row"><span class="status-label">Ingreso mensual completo (5 arriendos)</span><span class="status-badge" style="background:rgba(56,189,248,0.12);color:#38bdf8">$1.65M/mes</span></div>
+            <div class="status-row"><span class="status-label">Flujo neto mensual completo</span><span class="status-badge" style="background:rgba(16,185,129,0.12);color:#6ee7b7">+$1.21M</span></div>
+            <div class="status-row"><span class="status-label">Capacidad total operativa</span><span class="status-badge p-low">Mes 15</span></div>
+        </div>
+    </div>
+
+    <!-- COMPARATIVA ESCENARIOS -->
+    <div class="card animate-in animate-in-delay-3" style="margin-top:var(--space-lg)">
+        <h3 style="margin-bottom:16px">⚖️ Comparativa de Escenarios</h3>
+        <div style="overflow-x:auto">
+        <table class="budget-table">
+            <thead>
+                <tr><th>Escenario</th><th>Inversión</th><th>TIR</th><th>Payback</th><th>Retorno 5yr</th><th>Recomendado</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>🚶 1 Unidad primero</td>
+                    <td>$47.1M → $115.2M</td>
+                    <td>16.2%</td>
+                    <td>6.8 años</td>
+                    <td>$71.2M</td>
+                    <td><span class="p-badge p-medium">No</span></td>
+                </tr>
+                <tr style="background:rgba(56,189,248,0.05)">
+                    <td style="font-weight:700;color:#38bdf8">⭐ 2 Unidades primero</td>
+                    <td style="font-weight:700;color:#38bdf8">$51.4M → $105.3M</td>
+                    <td style="font-weight:700;color:#4ade80">22.8%</td>
+                    <td style="font-weight:700;color:#4ade80">5.4 años</td>
+                    <td style="font-weight:700;color:#4ade80">$79.6M</td>
+                    <td><span class="p-badge p-low">✅ SÍ</span></td>
+                </tr>
+                <tr>
+                    <td>🏗️ Todo de una vez</td>
+                    <td>$114.6M</td>
+                    <td>18.5%</td>
+                    <td>7.8 años</td>
+                    <td>$77.3M</td>
+                    <td><span class="p-badge p-medium">No</span></td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <div class="card animate-in animate-in-delay-3" style="max-width:800px;margin-top:var(--space-md)">
+        <div style="display:flex;gap:var(--space-md);align-items:center;padding:var(--space-md)">
+            <div style="font-size:40px">🎯</div>
+            <div>
+                <h4 style="color:var(--accent-green);margin-bottom:4px">Recomendación: Estrategia Escalonada 2+4</h4>
+                <p style="font-size:13px;color:var(--text-secondary)">Construir los 2 deptos fundamentales primero (vivienda + arriendo), luego escalar aprovechando el 2do piso. Flujo positivo desde el mes 6 financia la expansión. TIR de 22.8% es un 48% superior al enfoque de 1 unidad.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- RISK MATRIX -->
+    <div class="section-header animate-in animate-in-delay-4">
+        <p class="section-label">Gestión de Riesgos</p>
+        <h2 class="section-title">⚠️ Matriz de <span class="gradient-text">Riesgos</span></h2>
+    </div>
+
+    <div class="card animate-in animate-in-delay-4" style="overflow-x:auto">
+        <table class="risk-table">
+            <thead>
+                <tr><th>Riesgo</th><th>Prob.</th><th>Impacto</th><th>Mitigación</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>🔴 Retraso permisos DOM</td><td><span class="p-badge p-high">ALTA</span></td><td><span class="p-badge p-medium">MEDIO</span></td><td>Iniciar trámite 3 meses antes</td></tr>
+                <tr><td>🟡 Sobrecosto construcción</td><td><span class="p-badge p-medium">MEDIA</span></td><td><span class="p-badge p-high">ALTO</span></td><td>Contingencia 10% en presupuesto</td></tr>
+                <tr><td>🟡 Problemas mec. suelos</td><td><span class="p-badge p-low">BAJA</span></td><td><span class="p-badge p-high">ALTO</span></td><td>Estudio geotécnico previo</td></tr>
+                <tr><td>🟢 Vacancia departamentos</td><td><span class="p-badge p-low">BAJA</span></td><td><span class="p-badge p-medium">MEDIO</span></td><td>Precio competitivo + gestión</td></tr>
+                <tr><td>🟢 Cambio plan regulador</td><td><span class="p-badge p-low">BAJA</span></td><td><span class="p-badge p-medium">MEDIO</span></td><td>PRC se actualiza en 2027</td></tr>
+                <tr><td>🟢 Daños por sismo</td><td><span class="p-badge p-low">BAJA</span></td><td><span class="p-badge p-high">ALTO</span></td><td>Steel Frame cumple norma sísmica</td></tr>
+                <tr><td>🟡 Aumento tasas interés</td><td><span class="p-badge p-medium">MEDIA</span></td><td><span class="p-badge p-low">BAJO</span></td><td>Compra al contado o leasing</td></tr>
+            </tbody>
+        </table>
+        <div style="text-align:center;margin-top:var(--space-xl);padding:var(--space-lg);background:rgba(16,185,129,0.08);border-radius:var(--radius-md)">
+            <span style="font-size:28px">🎯</span>
+            <span style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--accent-green);margin-left:var(--space-sm)">Tasa de Éxito Estimada: 85%</span>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- PROJECT TIMELINE -->
+    <div class="section-header animate-in animate-in-delay-5" style="margin-top:var(--space-3xl)">
+        <p class="section-label">Cronograma</p>
+        <h2 class="section-title">📅 Línea de <span class="gradient-text">Tiempo</span></h2>
+    </div>
+
+    <div class="timeline-section animate-in animate-in-delay-5">
+        <div class="timeline">
+            <div class="timeline-item done">
+                <div class="month">MES 1</div>
+                <h4>📋 Documentación y Estudios</h4>
+                <p>CIP, mecánica de suelos, contratación de arquitecto, diseño y planos.</p>
+            </div>
+            <div class="timeline-item done">
+                <div class="month">MES 2</div>
+                <h4>🔑 Proveedor y Permisos</h4>
+                <p>Cotizaciones, selección de empresa prefab, presentación a DOM, pago de permiso.</p>
+            </div>
+            <div class="timeline-item done">
+                <div class="month">MES 3</div>
+                <h4>🔨 Demolición y Fundaciones</h4>
+                <p>Demolición de 2 casas existentes, nivelación, fundaciones zapata corrida.</p>
+            </div>
+            <div class="timeline-item done">
+                <div class="month">MES 4</div>
+                <h4>🚚 Montaje Planta Baja</h4>
+                <p>Recepción de módulos, montaje 3 departamentos PB, conexiones eléctricas y sanitarias.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="month">MES 5</div>
+                <h4>🏠 Habilitación Interior</h4>
+                <p>Pisos, pintura, cocinas, baños, fachadas. Fabricación módulos Planta 2.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="month">MES 6</div>
+                <h4>🏗️ Segundo Piso</h4>
+                <p>Montaje PA, conexiones, terminaciones y fachadas exteriores.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="month">MES 7</div>
+                <h4>✅ Recepción Municipal</h4>
+                <p>Recepción final, habilitación servicios independientes, sesión de fotos.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="month">MES 8</div>
+                <h4>🎉 Mudanza y Primer Arriendo</h4>
+                <p>Te mudas a tu departamento y comienzan los arriendos. Ingreso estimado: $1.65M/mes.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="site-footer">
+    <p><strong>emprende360</strong> — Agencia de Inversiones Inmobiliarias 🏢</p>
+    <p style="margin-top:4px;color:var(--text-muted)">Panel de Control · © 2026 · Proyecto: Casona Lo Blanco, San Bernardo</p>
+</div>
+
+</body>
+</html>

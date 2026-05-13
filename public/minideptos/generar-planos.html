@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generar Planos — Mini-Departamentos Lo Blanco</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:40px;line-height:1.6}
+h1{color:#f8fafc;margin-bottom:8px;font-size:28px}
+h1 span{color:#38bdf8}
+.sub{color:#94a3b8;margin-bottom:32px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.body{padding:20px}}
+.card{background:#1e293b;border-radius:16px;padding:24px;border:1px solid #334155}
+.card h3{font-size:16px;color:#38bdf8;margin-bottom:16px}
+textarea{width:100%;min-height:100px;padding:12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px;font-family:inherit;resize:vertical}
+textarea:focus{outline:none;border-color:#38bdf8}
+input[type="text"]{width:100%;padding:12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px;margin-bottom:12px}
+input:focus{outline:none;border-color:#38bdf8}
+.btn{padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;border:none;cursor:pointer;transition:all .2s}
+.btn-primary{background:#38bdf8;color:#0f172a}
+.btn-primary:hover{background:#7dd3fc;transform:translateY(-2px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media(max-width:600px){.result-grid{grid-template-columns:1fr}}
+.prompt-help{font-size:13px;color:#94a3b8}
+.prompt-help li{margin:6px 0;padding-left:16px;position:relative}
+.prompt-help li::before{content:'→';position:absolute;left:0;color:#38bdf8}
+.result-card{background:#0f172a;border-radius:12px;padding:16px;border:1px solid #334155;text-align:center}
+.result-card img{max-width:100%;border-radius:8px;margin-top:12px;cursor:pointer}
+.result-card .label{font-size:12px;color:#64748b;margin-top:8px}
+.result-card .btn-sm{padding:8px 16px;font-size:12px;border-radius:6px;background:#334155;color:#e2e8f0;border:none;cursor:pointer;margin-top:8px}
+.status{text-align:center;margin:20px 0;color:#fbbf24;display:none}
+.status.error{color:#f87171}
+.status.done{color:#4ade80}
+.progress{width:100%;height:4px;background:#334155;border-radius:2px;overflow:hidden;margin:12px 0;display:none}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#38bdf8,#818cf8);border-radius:2px;animation:load 30s ease-in-out}
+@keyframes load{0%{width:0%}50%{width:60%}100%{width:95%}}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.preset-btn{padding:8px 12px;border-radius:8px;border:1px solid #334155;background:transparent;color:#94a3b8;cursor:pointer;font-size:12px;text-align:left;transition:all .2s}
+.preset-btn:hover{border-color:#38bdf8;color:#f8fafc}
+.preset-btn.active{background:#38bdf8;color:#0f172a;border-color:#38bdf8}
+.nav{display:flex;gap:16px;margin-bottom:32px;align-items:center}
+.nav a{color:#38bdf8;text-decoration:none;font-size:14px;padding:8px 16px;border-radius:8px;transition:all .2s}
+.nav a:hover{background:#334155}
+</style>
+</head>
+<body>
+
+<div class="nav">
+    <a href="/minideptos">⬅ Volver al proyecto</a>
+    <span style="color:#64748b;font-size:13px">|</span>
+    <span style="color:#94a3b8;font-size:13px">Generador de Planos con IA</span>
+</div>
+
+<h1>🎨 <span>Generar Planos Arquitectónicos</span></h1>
+<p class="sub">Usa IA para generar vistas 3D de los mini-departamentos, fachadas y distribuciones. Cada imagen se guarda y se puede usar en la landing page.</p>
+
+<div class="grid">
+    <!-- INPUT -->
+    <div>
+        <div class="card">
+            <h3>✏️ Describe el diseño</h3>
+
+            <p style="font-size:12px;color:#64748b;margin-bottom:8px">Presets rápidos:</p>
+            <div class="preset-grid">
+                <button class="preset-btn active" onclick="setPreset(this,'Vista exterior 3D de un edificio de departamentos de 2 pisos, fachada moderna con siding vinílico gris perla, ventanas PVC blancas, puertas de seguridad color madera, terraza en segundo piso con baranda de vidrio, jardín frontal, San Bernardo Chile, estilo contemporáneo minimalista, iluminación natural, día soleado')">🌆 Fachada exterior</button>
+                <button class="preset-btn" onclick="setPreset(this,'Planta arquitectónica 2D de un departamento de 24.75m², distribución tipo loft abierto, kitchenette, baño completo, zona de estar, dormitorio con closet, dimensiones 4.5m x 5.5m, estilo moderno, escala 1:50')">📐 Planta tipo</button>
+                <button class="preset-btn" onclick="setPreset(this,'Vista interior 3D de una kitchenette moderna, encimera de granito, gabinetes melamina blanca, cocina 4 platos, fregadero acero inoxidable, espacio compacto de 2.40m, iluminación LED, colores claros')">🍳 Kitchenette</button>
+                <button class="preset-btn" onclick="setPreset(this,'Vista interior de un baño moderno pequeño, ducha con vidrio templado 0.80x0.80m, WC descarga dual, lavabo pedestal, cerámica antideslizante gris, iluminación LED, 2.16m²')">🚿 Baño</button>
+                <button class="preset-btn" onclick="setPreset(this,'Vista aérea de un terreno 9x17 metros con 6 departamentos prefabricados en 2 pisos, patio central, pasillo lateral, distribución simétrica, visualización arquitectónica 3D')">🏘️ Terreno completo</button>
+                <button class="preset-btn" onclick="setPreset(this,'Sección transversal de un edificio de departamentos de 2 pisos, steel frame, losa de casetones, altura libre 2.80m, cimentación zapata corrida, corte arquitectónico')">🔪 Corte sección</button>
+            </div>
+
+            <textarea id="prompt" placeholder="Describe en detalle la imagen que quieres generar...">Vista exterior 3D de un edificio de departamentos de 2 pisos, fachada moderna con siding vinílico gris perla, ventanas PVC blancas, puertas de seguridad color madera, terraza en segundo piso con baranda de vidrio, jardín frontal, San Bernardo Chile, estilo contemporáneo minimalista, iluminación natural, día soleado</textarea>
+
+            <div style="display:flex;gap:12px;margin-top:12px;align-items:center">
+                <button class="btn btn-primary" onclick="generate()" id="genBtn">🎨 Generar Planos</button>
+                <span style="font-size:12px;color:#64748b">SDXL vía Replicate</span>
+            </div>
+
+            <div class="status" id="status"></div>
+            <div class="progress" id="progress"><div class="progress-bar" id="progressBar"></div></div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+            <h3>💡 Prompts recomendados</h3>
+            <ul class="prompt-help">
+                <li>Sé específico con materiales, colores y dimensiones</li>
+                <li>Incluye estilo arquitectónico (moderno, minimalista, industrial)</li>
+                <li>Ambienta la escena (día soleado, noche, interior con luz cálida)</li>
+                <li>Define el tipo de vista (3D exterior, planta 2D, corte, interior)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- RESULTADOS -->
+    <div>
+        <div class="card">
+            <h3>🖼️ Imágenes Generadas</h3>
+            <p style="font-size:13px;color:#94a3b8">Tus imágenes aparecerán aquí después de generarse...</p>
+            <div id="results"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+            <h3>🗂️ Historial</h3>
+            <div id="history">
+                <p style="font-size:13px;color:#64748b">Aún no hay imágenes guardadas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function setPreset(el, prompt) {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('prompt').value = prompt;
+}
+
+async function generate() {
+    const prompt = document.getElementById('prompt').value.trim();
+    if (!prompt) return alert('Escribe un prompt primero');
+
+    const btn = document.getElementById('genBtn');
+    const status = document.getElementById('status');
+    const progress = document.getElementById('progress');
+
+    btn.disabled = true;
+    status.className = 'status';
+    status.textContent = '⏳ Generando imagen con FLUX... (~10 segundos)';
+    status.style.display = 'block';
+    progress.style.display = 'block';
+
+    try {
+        const resp = await fetch('/api/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, width: 1024, height: 768 })
+        });
+
+        const data = await resp.json();
+
+        if (data.status === 'succeeded' && data.output && data.output.length > 0) {
+            showImage(data.output[0], prompt);
+            status.className = 'status done';
+            status.textContent = '✅ Imagen generada exitosamente';
+        } else if (data.error || data.status === 'error') {
+            status.className = 'status error';
+            status.textContent = '❌ Error: ' + (data.error || JSON.stringify(data));
+        } else if (data.status === 'no_token') {
+            status.className = 'status error';
+            status.textContent = '❌ HF_TOKEN no configurado. Agrega tu token de Hugging Face.';
+        } else {
+            status.className = 'status error';
+            status.textContent = '❌ Error inesperado. Revisa la consola.';
+            console.error(data);
+        }
+    } catch (err) {
+        status.className = 'status error';
+        status.textContent = '❌ Error de conexión: ' + err.message;
+    }
+
+    btn.disabled = false;
+    progress.style.display = 'none';
+}
+
+function showImage(url, prompt) {
+    const container = document.getElementById('results');
+
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML = `<img src="${url}" alt="${prompt}" onclick="window.open('${url}','_blank')">
+<div class="label">${prompt.substring(0,80)}${prompt.length>80?'...':''}</div>
+<button class="btn-sm" onclick="saveImage(this,'${url.replace(/'/g,"\\'")}','${prompt.replace(/'/g,"\\'").substring(0,50)}')">💾 Guardar en landing page</button>`;
+    container.prepend(card);
+}
+
+function saveImage(btn, url, label) {
+    const history = document.getElementById('history');
+    const empty = history.querySelector('p');
+    if (empty) empty.remove();
+
+    const entry = document.createElement('div');
+    entry.style.cssText = 'display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #334155';
+    entry.innerHTML = `<img src="${url}" style="width:80px;height:60px;object-fit:cover;border-radius:6px">
+<div style="flex:1">
+<div style="font-size:12px;color:#94a3b8">${label}</div>
+<div style="font-size:10px;color:#64748b">${new Date().toLocaleDateString()}</div>
+</div>
+<button style="padding:4px 8px;font-size:11px;border-radius:4px;background:#334155;border:none;color:#38bdf8;cursor:pointer" onclick="copyToClipboard('${url}')">📋 Copiar URL</button>`;
+    history.prepend(entry);
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+}
+</script>
+</body>
+</html>

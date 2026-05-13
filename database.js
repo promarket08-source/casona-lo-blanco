@@ -229,10 +229,13 @@ function estadisticas() {
 
 // ====== CONTROL DE ACCESO ======
 
+const OWNER_CHAT_ID = parseInt(process.env.OWNER_CHAT_ID) || null;
+
 // Verificar si un chatId está autorizado
 function esAutorizado(chatId) {
     const data = leer();
-    // Si no hay owner, cualquiera puede usar (primera vez)
+    if (OWNER_CHAT_ID && OWNER_CHAT_ID === chatId) return true;
+    if (OWNER_CHAT_ID && !data.owner) return true;
     if (!data.owner) return true;
     return data.autorizados.includes(chatId) || data.owner === chatId;
 }
@@ -240,6 +243,16 @@ function esAutorizado(chatId) {
 // Registrar el primer usuario como owner
 function setOwner(chatId, nombre) {
     const data = leer();
+    if (OWNER_CHAT_ID) {
+        if (!data.owner) {
+            data.owner = OWNER_CHAT_ID;
+            data.autorizados.push(OWNER_CHAT_ID);
+            if (!data.meta) data.meta = {};
+            data.meta.ownerNombre = 'Owner';
+            guardar(data);
+        }
+        return OWNER_CHAT_ID === chatId;
+    }
     if (!data.owner) {
         data.owner = chatId;
         data.autorizados.push(chatId);
@@ -252,6 +265,7 @@ function setOwner(chatId, nombre) {
 
 // Verificar si es el owner
 function esOwner(chatId) {
+    if (OWNER_CHAT_ID) return OWNER_CHAT_ID === chatId;
     const data = leer();
     return data.owner === chatId;
 }

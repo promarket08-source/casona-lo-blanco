@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proyectos — emprende360</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+.page-hero { padding: var(--space-4xl) 0 var(--space-3xl); text-align: center; position: relative; overflow: hidden; }
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 50% 30%, rgba(59,130,246,0.06) 0%, transparent 60%);
+}
+.projects-showcase { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-3xl); }
+.project-card {
+    background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg); overflow: hidden; transition: all 0.4s ease; text-decoration: none; color: inherit; display: block;
+}
+.project-card:hover { border-color: rgba(59,130,246,0.2); box-shadow: var(--shadow-glow); transform: translateY(-4px); }
+.card-banner { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 48px; position: relative; overflow: hidden; }
+.card-banner::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(transparent, var(--bg-card)); }
+.card-badge { position: absolute; top: var(--space-md); right: var(--space-md); z-index: 1; }
+.card-body { padding: var(--space-lg); }
+.card-body h3 { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--text-bright); margin-bottom: var(--space-xs); }
+.card-body p { font-size: 13px; color: var(--text-secondary); margin-bottom: var(--space-md); line-height: 1.6; }
+.card-metrics { display: flex; gap: var(--space-md); flex-wrap: wrap; margin-bottom: var(--space-md); }
+.card-metric { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.card-metric strong { color: var(--accent-blue); font-weight: 600; }
+.card-url { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); background: rgba(255,255,255,0.03); border-radius: var(--radius-sm); font-family: monospace; font-size: 12px; color: var(--accent-cyan); margin-top: var(--space-md); }
+.card-url .arrow { color: var(--accent-blue); font-size: 14px; }
+
+.urls-section { margin-bottom: var(--space-3xl); }
+.url-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-md); }
+.url-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+    padding: var(--space-lg); display: flex; align-items: center; gap: var(--space-md);
+    transition: all 0.3s; text-decoration: none; color: inherit;
+}
+.url-card:hover { border-color: rgba(59,130,246,0.3); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.url-icon { font-size: 28px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); background: rgba(59,130,246,0.08); color: var(--accent-blue); flex-shrink: 0; }
+.url-info { flex: 1; min-width: 0; }
+.url-info h4 { font-size: 14px; font-weight: 600; color: var(--text-bright); margin-bottom: 2px; }
+.url-info code { font-size: 11px; color: var(--accent-cyan); word-break: break-all; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 4px; display: block; margin-top: 2px; }
+.url-info .desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.copy-btn { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border-subtle); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: var(--font-body); }
+.copy-btn:hover { background: rgba(59,130,246,0.1); color: var(--accent-blue); border-color: rgba(59,130,246,0.3); }
+
+.intro-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md); margin-top: var(--space-xl); }
+.intro-stat { text-align: center; padding: var(--space-lg); background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+.intro-stat .i-icon { font-size: 28px; margin-bottom: var(--space-sm); }
+.intro-stat .i-value { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--text-bright); }
+.intro-stat .i-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+</style>
+</head>
+<body>
+
+<nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,10,31,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);padding:0 var(--space-lg);height:64px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:var(--space-sm)">
+        <span style="font-size:24px">🏗️</span>
+        <span style="font-family:var(--font-display);font-size:18px;font-weight:800;background:var(--gradient-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent">emprende360</span>
+    </div>
+    <div style="display:flex;gap:var(--space-sm);align-items:center">
+        <a href="/" class="btn btn-outline btn-sm" style="font-size:13px">🏠 Inicio</a>
+        <a href="/panel" class="btn btn-outline btn-sm" style="font-size:13px">📊 Panel</a>
+        <a href="/projects" class="btn btn-primary btn-sm" style="font-size:13px">📋 Proyectos</a>
+        <a href="/minideptos" class="btn btn-outline btn-sm" style="font-size:13px">🏠 Lo Blanco</a>
+    </div>
+</nav>
+
+<div class="container" style="padding-top:80px">
+
+    <div class="section-header animate-in">
+        <p class="section-label">Portafolio de Inversiones</p>
+        <h2 class="section-title">📋 <span class="gradient-text">Todos los Proyectos</span></h2>
+        <p class="section-subtitle">Accesos directos a cada landing page con indicadores de estado y rendimiento</p>
+    </div>
+
+    <div class="intro-grid">
+        <div class="intro-stat"><div class="i-icon">🏗️</div><div class="i-value">4</div><div class="i-label">Proyectos Activos</div></div>
+        <div class="intro-stat"><div class="i-icon">💰</div><div class="i-value">$185M+</div><div class="i-label">Inversión Total</div></div>
+        <div class="intro-stat"><div class="i-icon">🏠</div><div class="i-value">16+</div><div class="i-label">Unidades</div></div>
+        <div class="intro-stat"><div class="i-icon">📈</div><div class="i-value">18-24%</div><div class="i-label">Rentabilidad</div></div>
+    </div>
+
+    <!-- ACTIVE PROJECTS -->
+    <div style="margin-top:var(--space-3xl)">
+        <p class="section-label" style="text-align:left">🟢 Activos</p>
+        <h2 class="section-title" style="text-align:left;font-size:28px">Proyectos en Ejecución</h2>
+    </div>
+
+    <div class="projects-showcase">
+
+        <!-- PROJECT 1 -->
+        <a href="/minideptos" class="project-card">
+            <div class="card-banner" style="background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(124,58,237,0.1))">🏠</div>
+            <span class="card-badge"><span class="badge badge-green">🟢 ACTIVO</span></span>
+            <div class="card-body">
+                <h3>Mini-Departamentos Lo Blanco</h3>
+                <p>6 mini-departamentos prefabricados en San Bernardo. Steel Frame. Inversión $114.6M CLP. Rentabilidad 18-24% anual.</p>
+                <div class="card-metrics">
+                    <div class="card-metric">💰 <strong>$114.6M</strong></div>
+                    <div class="card-metric">🏘️ <strong>6 dptos</strong></div>
+                    <div class="card-metric">📈 <strong>18-24%</strong></div>
+                </div>
+                <div class="card-url">
+                    <span>localhost:3000/minideptos</span>
+                    <span class="arrow">→</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- PROJECT 2 -->
+        <a href="#" class="project-card" style="opacity:0.6;cursor:default">
+            <div class="card-banner" style="background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(245,158,11,0.1))">🏢</div>
+            <span class="card-badge"><span class="badge badge-purple">⏳ PLANIFICACIÓN</span></span>
+            <div class="card-body">
+                <h3>Proyecto Comercial</h3>
+                <p>Detalles del proyecto comercial se publicarán próximamente. Mantente atento.</p>
+                <div class="card-metrics">
+                    <div class="card-metric">💰 <strong>—</strong></div>
+                    <div class="card-metric">🏠 <strong>—</strong></div>
+                </div>
+                <div class="card-url" style="opacity:0.4">
+                    <span>Próximamente disponible</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- PROJECT 3 -->
+        <a href="#" class="project-card" style="opacity:0.6;cursor:default">
+            <div class="card-banner" style="background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(59,130,246,0.1))">🏡</div>
+            <span class="card-badge"><span class="badge badge-blue">🔧 DESARROLLO</span></span>
+            <div class="card-body">
+                <h3>Proyecto Residencial</h3>
+                <p>Proyecto residencial en desarrollo. Información disponible próximamente.</p>
+                <div class="card-metrics">
+                    <div class="card-metric">💰 <strong>—</strong></div>
+                    <div class="card-metric">🏠 <strong>—</strong></div>
+                </div>
+                <div class="card-url" style="opacity:0.4">
+                    <span>Próximamente disponible</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- PROJECT 4 -->
+        <a href="#" class="project-card" style="opacity:0.6;cursor:default">
+            <div class="card-banner" style="background:linear-gradient(135deg,rgba(249,115,22,0.1),rgba(244,63,94,0.1))">🎯</div>
+            <span class="card-badge"><span class="badge badge-amber">📝 PLANIFICACIÓN</span></span>
+            <div class="card-body">
+                <h3>Proyecto Mixto</h3>
+                <p>Proyecto de uso mixto residencial/comercial. Detalles por confirmar.</p>
+                <div class="card-metrics">
+                    <div class="card-metric">💰 <strong>—</strong></div>
+                    <div class="card-metric">🏠 <strong>—</strong></div>
+                </div>
+                <div class="card-url" style="opacity:0.4">
+                    <span>Próximamente disponible</span>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- ALL URLS -->
+    <div class="urls-section">
+        <p class="section-label" style="text-align:left">🔗 Enlaces Directos</p>
+        <h2 class="section-title" style="text-align:left;font-size:28px">Links <span class="gradient-text">Desplegados</span></h2>
+        <p class="section-subtitle" style="text-align:left">Todas las URLs del proyecto con acceso rápido</p>
+
+        <div class="url-grid">
+            <a href="/minideptos" class="url-card">
+                <div class="url-icon">🏠</div>
+                <div class="url-info">
+                    <h4>Landing — Mini-Departamentos</h4>
+                    <code>localhost:3000/minideptos</code>
+                    <div class="desc">Página completa con análisis, planos, finanzas y clientes</div>
+                </div>
+                <button class="copy-btn" onclick="copy(this,'http://localhost:3000/minideptos')">📋 Copiar</button>
+            </a>
+
+            <a href="/panel" class="url-card">
+                <div class="url-icon">📊</div>
+                <div class="url-info">
+                    <h4>Panel de Control / Dashboard</h4>
+                    <code>localhost:3000/panel</code>
+                    <div class="desc">KPIs, progreso, métricas financieras y cronograma</div>
+                </div>
+                <button class="copy-btn" onclick="copy(this,'http://localhost:3000/panel')">📋 Copiar</button>
+            </a>
+
+            <a href="/projects" class="url-card">
+                <div class="url-icon">📋</div>
+                <div class="url-info">
+                    <h4>Lista de Proyectos</h4>
+                    <code>localhost:3000/projects</code>
+                    <div class="desc">Esta página — Portafolio completo de proyectos</div>
+                </div>
+                <button class="copy-btn" onclick="copy(this,'http://localhost:3000/projects')">📋 Copiar</button>
+            </a>
+
+            <a href="/health" class="url-card">
+                <div class="url-icon">🔍</div>
+                <div class="url-info">
+                    <h4>API Health Check</h4>
+                    <code>localhost:3000/health</code>
+                    <div class="desc">Verificación de estado del servidor y rutas</div>
+                </div>
+                <button class="copy-btn" onclick="copy(this,'http://localhost:3000/health')">📋 Copiar</button>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!-- INTEGRATION INFO -->
+<div style="background:var(--bg-secondary);padding:var(--space-3xl) 0;margin-top:0">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-label">Integración</p>
+            <h2 class="section-title">🔗 Conectado con <span class="gradient-text">emprende360</span></h2>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--space-lg);text-align:center">
+            <div style="padding:var(--space-lg);background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-subtle)">
+                <div style="font-size:28px;margin-bottom:var(--space-sm)">📊</div>
+                <h4 style="font-size:14px;color:var(--text-bright)">Panel Central</h4>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:4px">Monitoreo y métricas en tiempo real</p>
+                <span class="badge badge-green" style="margin-top:8px">✅ Conectado</span>
+            </div>
+            <div style="padding:var(--space-lg);background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-subtle)">
+                <div style="font-size:28px;margin-bottom:var(--space-sm)">📁</div>
+                <h4 style="font-size:14px;color:var(--text-bright)">Base de Datos</h4>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:4px">Registro JSON en /agency-hub/</p>
+                <span class="badge badge-green" style="margin-top:8px">✅ Registrado</span>
+            </div>
+            <div style="padding:var(--space-lg);background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-subtle)">
+                <div style="font-size:28px;margin-bottom:var(--space-sm)">📝</div>
+                <h4 style="font-size:14px;color:var(--text-bright)">Memoria Compartida</h4>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:4px">Session log y contexto actualizado</p>
+                <span class="badge badge-green" style="margin-top:8px">✅ Activo</span>
+            </div>
+            <div style="padding:var(--space-lg);background:var(--bg-card);border-radius:var(--radius-lg);border:1px solid var(--border-subtle)">
+                <div style="font-size:28px;margin-bottom:var(--space-sm)">🌐</div>
+                <h4 style="font-size:14px;color:var(--text-bright)">Landing Page</h4>
+                <p style="font-size:12px;color:var(--text-muted);margin-top:4px">Actualizable en tiempo real</p>
+                <span class="badge badge-green" style="margin-top:8px">✅ Online</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="site-footer">
+    <p><strong>emprende360</strong> — Agencia de Inversiones Inmobiliarias 🏢</p>
+    <p style="margin-top:4px;color:var(--text-muted)">📋 Portafolio de Proyectos · © 2026</p>
+    <p style="margin-top:2px">
+        <a href="/" style="color:var(--accent-blue);font-size:12px">🏠 Inicio</a> ·
+        <a href="/panel" style="color:var(--accent-blue);font-size:12px">📊 Panel</a> ·
+        <a href="/minideptos" style="color:var(--accent-blue);font-size:12px">🏠 Proyecto</a>
+    </p>
+</div>
+
+<script>
+function copy(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✅ Copiado';
+        setTimeout(() => btn.textContent = '📋 Copiar', 1500);
+    });
+}
+</script>
+</body>
+</html>

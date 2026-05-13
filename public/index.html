@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>emprende360 — Inversión Inmobiliaria Inteligente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+.hero { padding: var(--space-4xl) 0; text-align: center; position: relative; overflow: hidden; }
+.hero::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(124,58,237,0.06) 0%, transparent 50%);
+    animation: gradient-shift 15s ease infinite;
+    background-size: 200% 200%;
+}
+.hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-lg); margin-top: var(--space-3xl); }
+.hero-stat { padding: var(--space-lg); }
+.hero-stat .num { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; color: var(--text-bright); }
+.hero-stat .lbl { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+
+.cta-section { text-align: center; padding: var(--space-4xl) 0; }
+.cta-group { display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; margin-top: var(--space-xl); }
+
+.marquee { overflow: hidden; padding: var(--space-md) 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); margin: var(--space-2xl) 0; }
+.marquee-track { display: flex; gap: var(--space-3xl); animation: marquee 30s linear infinite; white-space: nowrap; }
+.marquee-item { display: inline-flex; align-items: center; gap: var(--space-sm); color: var(--text-muted); font-size: 14px; font-weight: 500; }
+.marquee-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+.quick-nav { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-md); margin-top: var(--space-xl); }
+.quick-nav-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+    padding: var(--space-lg); display: flex; align-items: center; gap: var(--space-md);
+    transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit;
+}
+.quick-nav-card:hover { border-color: rgba(59,130,246,0.3); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.qnc-icon { font-size: 28px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); }
+.qnc-info h4 { font-size: 15px; font-weight: 600; color: var(--text-bright); }
+.qnc-info p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,10,31,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);padding:0 var(--space-lg);height:64px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:var(--space-sm)">
+        <span style="font-size:24px">🏗️</span>
+        <span style="font-family:var(--font-display);font-size:18px;font-weight:800;background:var(--gradient-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent">emprende360</span>
+    </div>
+    <div style="display:flex;gap:var(--space-sm);align-items:center">
+        <a href="/panel" class="btn btn-outline btn-sm" style="font-size:13px">📊 Panel</a>
+        <a href="/projects" class="btn btn-outline btn-sm" style="font-size:13px">📋 Proyectos</a>
+        <a href="/minideptos" class="btn btn-primary btn-sm" style="font-size:13px">🏠 Proyecto Activo</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero" style="margin-top:64px">
+    <div class="container animate-in">
+        <p class="section-label">Agencia de Inversiones Inmobiliarias</p>
+        <h1 class="section-title" style="font-size:clamp(36px,6vw,60px);max-width:800px;margin:0 auto">
+            Invierte en Propiedades<br><span class="gradient-text">Inteligentemente</span>
+        </h1>
+        <p class="section-subtitle" style="margin:0 auto 0">
+            Proyectos inmobiliarios con análisis financiero completo, diseño 3D y rentabilidad comprobada.
+        </p>
+        <div class="cta-group">
+            <a href="/minideptos" class="btn btn-primary btn-lg">🏠 Ver Proyecto Activo →</a>
+            <a href="/panel" class="btn btn-outline btn-lg">📊 Ver Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee">
+    <div class="marquee-track">
+        <span class="marquee-item"><span class="dot"></span> Proyecto Lo Blanco Activado</span>
+        <span class="marquee-item"><span class="dot"></span> 6 Departamentos Prefabricados</span>
+        <span class="marquee-item"><span class="dot"></span> Inversión $114.6M CLP</span>
+        <span class="marquee-item"><span class="dot"></span> Rentabilidad 18-24% Anual</span>
+        <span class="marquee-item"><span class="dot"></span> San Bernardo — Metro Lo Blanco</span>
+        <span class="marquee-item"><span class="dot"></span> Prefabricados Steel Frame</span>
+        <span class="marquee-item"><span class="dot"></span> Análisis Financiero Completo</span>
+        <span class="marquee-item"><span class="dot"></span> 5 Clientes Objetivo Identificados</span>
+        <span class="marquee-item"><span class="dot"></span> Proyecto Escalable</span>
+        <span class="marquee-item"><span class="dot"></span> Payback ~5.5 Años</span>
+    </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="container" style="padding-bottom:var(--space-4xl)">
+    <div class="stat-cards">
+        <div class="stat-card animate-in animate-in-delay-1">
+            <div class="stat-icon">🏠</div>
+            <div class="stat-value">6</div>
+            <div class="stat-label">Departamentos</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-2">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">$114.6M</div>
+            <div class="stat-label">Inversión Total CLP</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-3">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value">18-24%</div>
+            <div class="stat-label">Rentabilidad Anual</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-4">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value">5.5 años</div>
+            <div class="stat-label">Payback Estimado</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-5">
+            <div class="stat-icon">💵</div>
+            <div class="stat-value">$1.65M</div>
+            <div class="stat-label">Ingreso Mensual</div>
+        </div>
+        <div class="stat-card animate-in animate-in-delay-5">
+            <div class="stat-icon">📍</div>
+            <div class="stat-value">Metro Lo Blanco</div>
+            <div class="stat-label">Ubicación Estratégica</div>
+        </div>
+    </div>
+</div>
+
+<!-- QUICK NAVIGATION -->
+<div class="container" style="padding-bottom:var(--space-4xl)">
+    <div class="section-header">
+        <p class="section-label">Navegación Rápida</p>
+        <h2 class="section-title">Accede a todo el proyecto</h2>
+        <p class="section-subtitle">Cada sección con datos actualizados, análisis y documentación</p>
+    </div>
+    <div class="quick-nav">
+        <a href="/minideptos" class="quick-nav-card">
+            <div class="qnc-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6">🏠</div>
+            <div class="qnc-info">
+                <h4>Landing del Proyecto</h4>
+                <p>Análisis completo, planos 3D, finanzas, clientes</p>
+            </div>
+        </a>
+        <a href="/panel" class="quick-nav-card">
+            <div class="qnc-icon" style="background:rgba(124,58,237,0.1);color:#7c3aed">📊</div>
+            <div class="qnc-info">
+                <h4>Dashboard de Control</h4>
+                <p>Métricas, estado, progreso del proyecto</p>
+            </div>
+        </a>
+        <a href="/projects" class="quick-nav-card">
+            <div class="qnc-icon" style="background:rgba(16,185,129,0.1);color:#10b981">📋</div>
+            <div class="qnc-info">
+                <h4>Links de Proyectos</h4>
+                <p>Todos los proyectos con accesos directos</p>
+            </div>
+        </a>
+        <a href="/health" class="quick-nav-card">
+            <div class="qnc-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b">🔍</div>
+            <div class="qnc-info">
+                <h4>Estado del Servidor</h4>
+                <p>Verificación API y rutas disponibles</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<div class="container" style="padding-bottom:var(--space-4xl)">
+    <div class="section-header">
+        <p class="section-label">Lo que incluye este proyecto</p>
+        <h2 class="section-title">Todo lo que necesitas para invertir</h2>
+        <p class="section-subtitle">Análisis, diseño, finanzas y ejecución — documentado profesionalmente</p>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📐</div>
+            <div class="feature-title">Plano 3D Conceptual</div>
+            <div class="feature-text">Distribución optimizada de 6 departamentos en terreno de 153m² con cortes y secciones detalladas.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Análisis Financiero</div>
+            <div class="feature-text">3 escenarios (conservador, base, optimista), proyección a 5 años, ROI detallado y punto de equilibrio.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🏗️</div>
+            <div class="feature-title">Construcción Prefab</div>
+            <div class="feature-text">Comparativa de proveedores, costos por m², tiempos de entrega y recomendación profesional.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <div class="feature-title">Perfiles de Clientes</div>
+            <div class="feature-text">5 segmentos de mercado con estrategia de arriendo optimizada para cada perfil.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚠️</div>
+            <div class="feature-title">Matriz de Riesgos</div>
+            <div class="feature-text">Análisis de riesgos con probabilidad, impacto y plan de mitigación para cada escenario.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📅</div>
+            <div class="feature-title">Cronograma 8 Meses</div>
+            <div class="feature-text">Plan de ejecución fase a fase desde CIP hasta primer arriendo.</div>
+        </div>
+    </div>
+</div>
+
+<!-- INFO FOOTER -->
+<div style="background:var(--bg-secondary);padding:var(--space-3xl) 0;margin-top:var(--space-4xl)">
+    <div class="container">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-xl);text-align:center">
+            <div>
+                <div style="font-size:28px;margin-bottom:var(--space-sm)">🌐</div>
+                <div style="font-weight:700;color:var(--text-bright)">localhost:3000</div>
+                <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Servidor local activo</div>
+            </div>
+            <div>
+                <div style="font-size:28px;margin-bottom:var(--space-sm)">📍</div>
+                <div style="font-weight:700;color:var(--text-bright)">San Bernardo, RM</div>
+                <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Estación Lo Blanco</div>
+            </div>
+            <div>
+                <div style="font-size:28px;margin-bottom:var(--space-sm)">📄</div>
+                <div style="font-weight:700;color:var(--text-bright)">4 Páginas</div>
+                <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Panel + Proyectos + Landing</div>
+            </div>
+            <div>
+                <div style="font-size:28px;margin-bottom:var(--space-sm)">🔄</div>
+                <div style="font-weight:700;color:var(--text-bright)">Actualizable</div>
+                <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Siempre al día</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="site-footer">
+    <p><strong>emprende360</strong> — Agencia de Inversiones Inmobiliarias 🏢</p>
+    <p style="margin-top:4px;color:var(--text-muted)">Panel de Control de Proyectos · © 2026</p>
+    <p style="margin-top:2px;font-size:11px;color:var(--text-muted)">
+        📋 <a href="/projects" style="color:var(--accent-blue)">Proyectos</a> · 
+        📊 <a href="/panel" style="color:var(--accent-blue)">Panel</a> · 
+        🏠 <a href="/minideptos" style="color:var(--accent-blue)">Mini-Departamentos</a> · 
+        🔍 <a href="/health" style="color:var(--accent-blue)">API</a>
+    </p>
+</div>
+
+</body>
+</html>

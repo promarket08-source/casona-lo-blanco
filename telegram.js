@@ -678,22 +678,9 @@ async function handleUpdate(update) {
     const caption = msg.caption?.trim();
     const nombre = msg.from?.first_name || 'Usuario';
 
-    // Registrar al primer usuario como dueño
-    const esOwner = db.setOwner(chatId, nombre);
-
-    // Verificar autorización
-    if (!db.esAutorizado(chatId) && !esOwner) {
-        const data = db.leer();
-        if (data.owner) {
-            // Enviar solicitud al dueño con botones
-            const solicitudTexto = `🔐 <b>Solicitud de acceso</b>\n\n👤 <b>${nombre}</b>\n🆔 ID: <code>${chatId}</code>\n📝 "${text || '📸 Envió una foto'}"\n\n¿Apruebas su acceso al proyecto?`;
-            await sendWithKeyboard(data.owner, solicitudTexto, [
-                [{ text: '✅ Aprobar', callback_data: `approve:${chatId}:${nombre}` }],
-                [{ text: '❌ Rechazar', callback_data: `deny:${chatId}:${nombre}` }]
-            ]);
-        }
-        return await send(chatId, `🔐 <b>Acceso restringido</b>\n\nEste bot es privado del proyecto Casona Lo Blanco.\n\n⏳ Se ha enviado una solicitud al dueño. Espera su aprobación.`);
-    }
+    // Registrar al primer usuario como dueño (auto-autoriza a todos)
+    db.setOwner(chatId, nombre);
+    db.agregarAutorizado(chatId, nombre);
 
     // === FOTOS ===
     if (msg.photo) {
@@ -718,7 +705,7 @@ async function handleUpdate(update) {
             usuario: msg.from?.first_name || 'Anónimo'
         });
 
-        return send(chatId, `📄 <b>Documento guardado:</b> ${msg.document.file_name}\n📊 /stats — Ver estadísticas`);
+        return await send(chatId, `📄 <b>Documento guardado:</b> ${msg.document.file_name}\n📊 /stats — Ver estadísticas`);
     }
 
     if (!text) return;
@@ -738,7 +725,7 @@ async function handleUpdate(update) {
     if (text.startsWith('/buscar ')) return await cmdBuscar(chatId, text.replace('/buscar ', ''));
     if (text === '/allowlist' || text === '/lista') return await cmdAllowList(chatId);
     if (text.startsWith('/allow ')) return await cmdAllow(chatId, text.replace('/allow ', ''), msg);
-    if (text.startsWith('/deny ')) return cmdDeny(chatId, text.replace('/deny ', ''));
+    if (text.startsWith('/deny ')) return await cmdDeny(chatId, text.replace('/deny ', ''));
 
     // === LINKS (YouTube, Instagram, etc) ===
     const linkResult = await procesarLink(chatId, text, msg);

@@ -32,6 +32,21 @@ async function send(chatId, text, extra = {}) {
     return api('sendMessage', { chat_id: chatId, text, parse_mode: 'HTML', disable_web_page_preview: false, ...extra });
 }
 
+async function sendWithKeyboard(chatId, text, buttons) {
+    return api('sendMessage', {
+        chat_id: chatId, text, parse_mode: 'HTML', disable_web_page_preview: false,
+        reply_markup: { inline_keyboard: buttons }
+    });
+}
+
+async function answerCallback(queryId, text) {
+    return api('answerCallbackQuery', { callback_query_id: queryId, text, show_alert: false });
+}
+
+async function editMessage(chatId, msgId, text) {
+    return api('editMessageText', { chat_id: chatId, message_id: msgId, text, parse_mode: 'HTML' });
+}
+
 // Descargar archivo de Telegram
 async function downloadFile(fileId, destPath) {
     try {
@@ -609,6 +624,49 @@ function cmdDeny(chatId, args) {
 
 // ====== HANDLER PRINCIPAL ======
 async function handleUpdate(update) {
+    // === CALLBACK QUERY (botones inline) ===
+    if (update.callback_query) {
+        const cb = update.callback_query;
+        const data = cb.data;
+        const chatId = cb.message.chat.id;
+        const msgId = cb.message.message_id;
+
+        await answerCallback(cb.id, 'Procesando...');
+
+        if (data.startsWith('approve:')) {
+            const parts = data.split(':');
+            const userId = parseInt(parts[1]);
+            const userName = parts[2] || 'Usuario';
+
+            db.agregarAutorizado(userId, userName);
+
+            await editMessage(chatId, msgId,
+                `✅ <b>Solicitud APROBADA</b>\n\n👤 ${userName} (ID: <code>${userId}</code>)\n✅ Ya tiene acceso al bot.`
+            );
+
+            // Notificar al usuario que fue aprobado
+            await send(userId, `✅ <b>Acceso concedido!</b>\n\nEl dueño ha aprobado tu solicitud. Bienvenido al proyecto Casona Lo Blanco 🏠\n\nEnvía /start para comenzar.`);
+
+            return;
+        }
+
+        if (data.startsWith('deny:')) {
+            const parts = data.split(':');
+            const userId = parseInt(parts[1]);
+            const userName = parts[2] || 'Usuario';
+
+            await editMessage(chatId, msgId,
+                `❌ <b>Solicitud RECHAZADA</b>\n\n👤 ${userName} (ID: <code>${userId}</code>)\n❌ No tiene acceso al bot.`
+            );
+
+            await send(userId, `❌ <b>Acceso denegado</b>\n\nEl dueño ha rechazado tu solicitud de acceso al proyecto Casona Lo Blanco.`);
+
+            return;
+        }
+
+        return;
+    }
+
     const msg = update.message;
     if (!msg) return;
 
@@ -620,18 +678,21 @@ async function handleUpdate(update) {
     // Registrar al primer usuario como dueño
     db.setOwner(chatId, nombre);
 
-    // Verificar autorización (excluir comandos de admin)
-    if (!db.esAutorizado(chatId)) {
+    // Registrar al primer usuario como dueño
+    const esOwner = db.setOwner(chatId, nombre);
+
+    // Verificar autorización
+    if (!db.esAutorizado(chatId) && !esOwner) {
         const data = db.leer();
-        if (data.owner === chatId) {
-            // El owner siempre tiene acceso
-        } else {
-            // Notificar al dueño que alguien intentó usar el bot
-            if (data.owner) {
-                send(data.owner, `🚫 <b>Intento de acceso denegado</b>\n👤 ${nombre} (ID: ${chatId})\n📝 "${text || 'foto/documento'}"\n\nPara autorizar: /allow ${chatId}`);
-            }
-            return send(chatId, `🔐 <b>Acceso restringido</b>\n\nEste bot es privado del proyecto Casona Lo Blanco.\n\nSi eres parte del equipo, pide al dueño que te autorice.`);
+        if (data.owner) {
+            // Enviar solicitud al dueño con botones
+            const solicitudTexto = `🔐 <b>Solicitud de acceso</b>\n\n👤 <b>${nombre}</b>\n🆔 ID: <code>${chatId}</code>\n📝 "${text || '📸 Envió una foto'}"\n\n¿Apruebas su acceso al proyecto?`;
+            await sendWithKeyboard(data.owner, solicitudTexto, [
+                [{ text: '✅ Aprobar', callback_data: `approve:${chatId}:${nombre}` }],
+                [{ text: '❌ Rechazar', callback_data: `deny:${chatId}:${nombre}` }]
+            ]);
         }
+        return send(chatId, `🔐 <b>Acceso restringido</b>\n\nEste bot es privado del proyecto Casona Lo Blanco.\n\n⏳ Se ha enviado una solicitud al dueño. Espera su aprobación.`);
     }
 
     // === FOTOS ===
@@ -697,4 +758,4 @@ async function handleUpdate(update) {
     send(chatId, `📝 <b>Nota guardada!</b>\n\n"${text.length > 80 ? text.substring(0, 80) + '...' : text}"\n\n📝 Total notas: ${totalNotas}\n📊 /stats — Ver todo\n🔍 /buscar <i>palabra</i> — Buscar en notas`);
 }
 
-module.exports = { send, setCommands, handleUpdate, api };
+module.exports = { send, sendWithKeyboard, setCommands, handleUpdate, api };

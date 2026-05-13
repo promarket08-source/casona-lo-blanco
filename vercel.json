@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/minideptos", "dest": "/public/minideptos/index.html" },
+    { "src": "/minideptos/(.*)", "dest": "/public/minideptos/$1" },
+    { "src": "/panel", "dest": "/public/panel/index.html" },
+    { "src": "/panel/(.*)", "dest": "/public/panel/$1" },
+    { "src": "/img/(.*)", "dest": "/public/img/$1" },
+    { "src": "/css/(.*)", "dest": "/public/css/$1" },
+    { "src": "/js/(.*)", "dest": "/public/js/$1" },
+    { "src": "/data/(.*)", "dest": "/public/minideptos/data/$1" },
+    { "src": "/", "dest": "/public/index.html" }
+  ]
+}

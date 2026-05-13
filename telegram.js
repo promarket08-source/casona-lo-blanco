@@ -74,8 +74,9 @@ async function downloadFile(fileId, destPath) {
 
 async function setCommands() {
     const fullCmds = [
-        { command: 'start', description: '🏠 Inicio — Todos los comandos' },
+        { command: 'start', description: '🏠 Inicio — Bienvenida y comandos' },
         { command: 'reporte', description: '📊 Reporte completo del proyecto' },
+        { command: 'info', description: '📊 Resumen del proyecto' },
         { command: 'planos', description: '📐 Ver planos y distribución' },
         { command: 'finanzas', description: '💰 Estado financiero y rentabilidad' },
         { command: 'fase1', description: '📦 Fase 1 — 2 Deptos 3×9m' },
@@ -96,39 +97,39 @@ async function setCommands() {
 // ====== COMANDOS ======
 
 async function cmdStart(chatId) {
-    const msg = `🏠 <b>Casona Lo Blanco — San Bernardo</b>
+    const msg = `🏠 <b>Bienvenido a Casona Lo Blanco</b>
 
-🚇 Estación Lo Blanco · Terreno 9×17m (153m²)
-👥 Este es un chat compartido — todos ven la misma info
+🤖 <b>¿Qué es este bot?</b>
+Es el asistente oficial del proyecto inmobiliario <b>Casona Lo Blanco</b> en San Bernardo, Estación Lo Blanco. Aquí todo el equipo puede ver el progreso, los planos, las finanzas y colaborar en tiempo real.
 
-<b>📋 COMANDOS:</b>
-/start — Esta ayuda
-/reporte — Reporte completo
-/planos — Planos y medidas
-/finanzas — Estado financiero
-/fase1 — Fase 1: 2 Deptos
-/proveedores — Costos: William · Homecenter · Otal · Alibaba
-/link — Links de acceso
+📍 Terreno: 9×17m (153m²)
+🏗️ Proyecto: Casona 2 pisos + 2 Deptos arriendo
+
+━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━
+
+<b>📋 COMANDOS PRINCIPALES</b>
+
+/info — Resumen del proyecto
+/planos — Planos y distribución
+/finanzas — Estado financiero y rentabilidad
+/fase1 — Fase 1: 2 Deptos (recomendada)
+/proveedores — Comparativa de costos
+/link — Links a la web y panel
+/stats — Estadísticas del proyecto
 
 <b>📸 ENVÍAME:</b>
-• Fotos → se guardan automáticamente
-• Boletas → las registro como gasto
-• Links de YouTube → los guardo como referencia
-• Texto → lo guardo como nota
-
-<b>📊 CONSULTAS:</b>
-/boletas — Últimas boletas
-/gastos — Total por categoría
-/fotos — Últimas imágenes
-/stats — Estadísticas del proyecto
-/buscar + texto — Busca en la BD
+• <b>Fotos</b> → las guardo automáticamente
+• <b>Boletas</b> → las registro como gasto (escribe "boleta $25.000 Homecenter")
+• <b>Links</b> → los guardo como referencia
+• <b>Texto</b> → lo guardo como nota
 
 <b>🔐 ADMIN (solo dueño):</b>
-/allow @usuario — Autorizar persona
+/allow @usuario — Autorizar acceso
 /deny @usuario — Quitar acceso
 /allowlist — Ver autorizados
 
-👥 Comparte este bot: @sanbernardo360_bot`;
+━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━ ━
+👥 Bot compartido: @sanbernardo360_bot`;
     await send(chatId, msg);
 }
 
@@ -712,7 +713,7 @@ async function handleUpdate(update) {
 
     // === COMANDOS ===
     if (text === '/start' || text.startsWith('/start')) return await cmdStart(chatId);
-    if (text === '/reporte') return await cmdReporte(chatId);
+    if (text === '/reporte' || text === '/info') return await cmdReporte(chatId);
     if (text === '/planos') return await cmdPlanos(chatId);
     if (text === '/finanzas') return await cmdFinanzas(chatId);
     if (text === '/fase1') return await cmdFase1(chatId);

@@ -1,7 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_FILE = path.join(__dirname, 'data', 'proyecto.json');
+const IS_VERCEL = !!process.env.VERCEL;
+const DATA_FILE = IS_VERCEL
+    ? path.join('/tmp', 'proyecto.json')
+    : path.join(__dirname, 'data', 'proyecto.json');
+
+const SEED_FILE = path.join(__dirname, 'data', 'proyecto.json');
+let _memoryStore = null;
+let _seeded = false;
 
 // Estructura inicial
 function estructuraBase() {
@@ -26,10 +33,24 @@ function estructuraBase() {
     };
 }
 
+function seedIfNeeded() {
+    if (_seeded || !IS_VERCEL) return;
+    _seeded = true;
+    try {
+        if (fs.existsSync(SEED_FILE) && !fs.existsSync(DATA_FILE)) {
+            const seed = fs.readFileSync(SEED_FILE, 'utf8');
+            fs.writeFileSync(DATA_FILE, seed, 'utf8');
+        }
+    } catch {}
+}
+
 function leer() {
+    if (_memoryStore) return _memoryStore;
+    seedIfNeeded();
     try {
         if (fs.existsSync(DATA_FILE)) {
-            return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+            _memoryStore = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+            return _memoryStore;
         }
     } catch {}
     const base = estructuraBase();
@@ -39,7 +60,18 @@ function leer() {
 
 function guardar(data) {
     data.meta.actualizado = new Date().toISOString();
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+    _memoryStore = data;
+    try {
+        const dir = path.dirname(DATA_FILE);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+    } catch (e) {
+        if (IS_VERCEL) {
+            // Writing failed on Vercel - data lives in memory only for this invocation
+        } else {
+            throw e;
+        }
+    }
 }
 
 // ====== AGREGAR DATOS ======

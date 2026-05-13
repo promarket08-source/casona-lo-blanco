@@ -49,12 +49,15 @@ async function editMessage(chatId, msgId, text) {
 
 // Descargar archivo de Telegram
 async function downloadFile(fileId, destPath) {
+    if (process.env.VERCEL) return null;
     try {
         const fileInfo = await api('getFile', { file_id: fileId });
         if (!fileInfo?.result?.file_path) return null;
         const filePath = fileInfo.result.file_path;
         const token = process.env.TELEGRAM_BOT_TOKEN;
         return new Promise((resolve) => {
+            const dir = path.dirname(destPath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
             const req = https.get(`https://api.telegram.org/file/bot${token}/${filePath}`, res => {
                 if (res.statusCode !== 200) return resolve(null);
                 const chunks = [];
@@ -92,7 +95,7 @@ async function setCommands() {
 
 // ====== COMANDOS ======
 
-function cmdStart(chatId) {
+async function cmdStart(chatId) {
     const msg = `🏠 <b>Casona Lo Blanco — San Bernardo</b>
 
 🚇 Estación Lo Blanco · Terreno 9×17m (153m²)
@@ -126,10 +129,10 @@ function cmdStart(chatId) {
 /allowlist — Ver autorizados
 
 👥 Comparte este bot: @sanbernardo360_bot`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdReporte(chatId) {
+async function cmdReporte(chatId) {
     const msg = `📊 <b>REPORTE COMPLETO — CASONA LO BLANCO</b>
 
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -155,10 +158,10 @@ function cmdReporte(chatId) {
 • Container 2 pisos: ~$25-30M
 
 /link — Landing page online`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdPlanos(chatId) {
+async function cmdPlanos(chatId) {
     const msg = `📐 <b>PLANOS Y DISTRIBUCIÓN</b>
 
 🏠 <b>Casona 2 Pisos (9×12m = 108m² c/piso)</b>
@@ -174,10 +177,10 @@ function cmdPlanos(chatId) {
 ✅ 108+108+27+27+18 = <b>153m² ✓</b>
 
 🔗 https://minideptos-lo-blanco.vercel.app/minideptos#plano`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdFinanzas(chatId) {
+async function cmdFinanzas(chatId) {
     const data = db.leer();
     const totalB = data.boletas.reduce((s, b) => s + (b.monto || 0), 0);
 
@@ -208,10 +211,10 @@ function cmdFinanzas(chatId) {
     }
 
     msg += `\n\n🔗 https://minideptos-lo-blanco.vercel.app/minideptos#finanzas`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdFase1(chatId) {
+async function cmdFase1(chatId) {
     const msg = `📦 <b>FASE 1 — 2 DEPTOS 3×9m</b>
 
 <b>Inversión Total: ~$40.000.000</b>
@@ -242,10 +245,10 @@ Mes 2 → Demo + fundaciones ($6M)
 Mes 3 → Estructura + instalar ($18M)
 Mes 4 → Terminaciones ($11M)
 Mes 5 → <b>🎉 $700K/mes!</b>`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdProveedores(chatId) {
+async function cmdProveedores(chatId) {
     const data = db.leer();
     let msg = `🏭 <b>COMPARATIVA DE PROVEEDORES</b>
 
@@ -274,10 +277,10 @@ function cmdProveedores(chatId) {
     }
 
     msg += `\n\n💡 <b>Recomendación:</b> William + Homecenter = más seguro`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdLink(chatId) {
+async function cmdLink(chatId) {
     const msg = `🔗 <b>LINKS DE ACCESO</b>
 
 <b>🏠 Landing Page:</b>
@@ -309,13 +312,13 @@ https://github.com/promarket08-source/casona-lo-blanco
 
 ━━━━━━━━━━━━━━━━━━━━━━
 👥 Bot compartido: @sanbernardo360_bot`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdBoletas(chatId) {
+async function cmdBoletas(chatId) {
     const data = db.leer();
     const boletas = data.boletas;
-    if (boletas.length === 0) return send(chatId, '🧾 No hay boletas registradas aún. Envíame una foto de una boleta y la guardo automáticamente.');
+    if (boletas.length === 0) return await send(chatId, '🧾 No hay boletas registradas aún. Envíame una foto de una boleta y la guardo automáticamente.');
 
     let msg = `🧾 <b>Últimas boletas (${boletas.length} total):</b>\n\n`;
     const ultimas = boletas.slice(-10).reverse();
@@ -327,10 +330,10 @@ function cmdBoletas(chatId) {
     });
     const total = boletas.reduce((s, b) => s + (b.monto || 0), 0);
     msg += `<b>💰 Total gastado: $${total.toLocaleString('es-CL')}</b>`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdGastos(chatId) {
+async function cmdGastos(chatId) {
     const data = db.leer();
     const cats = {};
     data.boletas.forEach(b => {
@@ -338,7 +341,7 @@ function cmdGastos(chatId) {
         cats[c] = (cats[c] || 0) + (b.monto || 0);
     });
 
-    if (Object.keys(cats).length === 0) return send(chatId, '📊 No hay gastos registrados aún.');
+    if (Object.keys(cats).length === 0) return await send(chatId, '📊 No hay gastos registrados aún.');
 
     let msg = `📊 <b>Gastos por categoría:</b>\n\n`;
     const entries = Object.entries(cats).sort((a, b) => b[1] - a[1]);
@@ -349,13 +352,13 @@ function cmdGastos(chatId) {
         msg += `${bar} <b>$${monto.toLocaleString('es-CL')}</b> — ${cat} (${pct}%)\n`;
     });
     msg += `\n<b>💰 Total: $${total.toLocaleString('es-CL')}</b>`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdFotos(chatId) {
+async function cmdFotos(chatId) {
     const data = db.leer();
     const imgs = data.imagenes;
-    if (imgs.length === 0) return send(chatId, '🖼️ No hay imágenes guardadas aún. Envíame fotos y las guardo automáticamente.');
+    if (imgs.length === 0) return await send(chatId, '🖼️ No hay imágenes guardadas aún. Envíame fotos y las guardo automáticamente.');
 
     let msg = `🖼️ <b>Últimas imágenes (${imgs.length} total):</b>\n\n`;
     const ultimas = imgs.slice(-5).reverse();
@@ -363,10 +366,10 @@ function cmdFotos(chatId) {
         msg += `📸 ${img.descripcion || 'Sin descripción'}\n`;
         msg += `   📅 ${new Date(img.fecha).toLocaleDateString('es-CL')} | 👤 ${img.usuario}\n\n`;
     });
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
-function cmdStats(chatId) {
+async function cmdStats(chatId) {
     const est = db.estadisticas();
     const msg = `📈 <b>Estadísticas del Proyecto</b>
 
@@ -382,12 +385,12 @@ function cmdStats(chatId) {
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🤖 Bot activo · Datos en la nube (Vercel)`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
 async function cmdBuscar(chatId, query) {
     const results = db.buscar(query);
-    if (results.length === 0) return send(chatId, `🔍 No encontré nada para "${query}"`);
+    if (results.length === 0) return await send(chatId, `🔍 No encontré nada para "${query}"`);
 
     let msg = `🔍 <b>Resultados para "${query}":</b>\n\n`;
     results.forEach((r, i) => {
@@ -401,7 +404,7 @@ async function cmdBuscar(chatId, query) {
         msg += `${i + 1}. [${tipo}] ${texto}\n`;
         if (item.monto) msg += `   💰 $${item.monto.toLocaleString('es-CL')}\n`;
     });
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
 // ====== PROCESAR FOTOS ======
@@ -434,7 +437,7 @@ async function procesarFoto(chatId, photo, caption, msg) {
     reply += `📊 /fotos — Ver todas\n`;
     reply += `📊 /stats — Estadísticas`;
 
-    send(chatId, reply);
+    await send(chatId, reply);
 }
 
 // ====== PROCESAR BOLETAS (fotos con texto "boleta" o "gasto") ======
@@ -494,11 +497,11 @@ async function procesarBoleta(chatId, photo, caption, msg) {
     reply += `📊 /boletas — Ver todas\n`;
     reply += `📊 /gastos — Total por categoría`;
 
-    send(chatId, reply);
+    await send(chatId, reply);
 }
 
 // ====== PROCESAR VIDEOS Y LINKS ======
-function procesarLink(chatId, text, msg) {
+async function procesarLink(chatId, text, msg) {
     // YouTube
     const ytMatch = text.match(/(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?([\w-]+)/i);
     if (ytMatch) {
@@ -509,7 +512,7 @@ function procesarLink(chatId, text, msg) {
             chatId,
             usuario: msg.from?.first_name || 'Anónimo'
         });
-        return send(chatId, `🎬 <b>Video guardado!</b>\n${text.substring(0, 100)}\n\n🎥 /stats — Ver estadísticas`);
+        return await send(chatId, `🎬 <b>Video guardado!</b>\n${text.substring(0, 100)}\n\n🎥 /stats — Ver estadísticas`);
     }
 
     // Instagram
@@ -523,7 +526,7 @@ function procesarLink(chatId, text, msg) {
             chatId,
             usuario: msg.from?.first_name || 'Anónimo'
         });
-        return send(chatId, `📱 <b>Post de Instagram guardado!</b>\n📊 /stats — Ver estadísticas`);
+        return await send(chatId, `📱 <b>Post de Instagram guardado!</b>\n📊 /stats — Ver estadísticas`);
     }
 
     // Alibaba u otros links
@@ -535,7 +538,7 @@ function procesarLink(chatId, text, msg) {
             chatId,
             usuario: msg.from?.first_name || 'Anónimo'
         });
-        return send(chatId, `🔗 <b>Link guardado como referencia!</b>\n📊 /stats — Ver todos los registros`);
+        return await send(chatId, `🔗 <b>Link guardado como referencia!</b>\n📊 /stats — Ver todos los registros`);
     }
 
     return false;
@@ -543,8 +546,8 @@ function procesarLink(chatId, text, msg) {
 
 // ====== COMANDOS DE ADMINISTRACIÓN ======
 
-function cmdAllowList(chatId) {
-    if (!db.esOwner(chatId)) return send(chatId, '⛔ Solo el dueño del bot puede usar este comando.');
+async function cmdAllowList(chatId) {
+    if (!db.esOwner(chatId)) return await send(chatId, '⛔ Solo el dueño del bot puede usar este comando.');
     const info = db.listarAutorizados();
     const data = db.leer();
     let msg = `🔐 <b>Usuarios Autorizados</b>\n\n`;
@@ -558,12 +561,12 @@ function cmdAllowList(chatId) {
         msg += `No hay otros usuarios autorizados aún.\n`;
     }
     msg += `\n📌 Para agregar: /allow <i>@username</i> o <i>chatId</i>`;
-    send(chatId, msg);
+    await send(chatId, msg);
 }
 
 async function cmdAllow(chatId, args, msg) {
-    if (!db.esOwner(chatId)) return send(chatId, '⛔ Solo el dueño del bot puede usar este comando.');
-    if (!args) return send(chatId, 'ℹ️ Usa: /allow @username o /allow 123456789');
+    if (!db.esOwner(chatId)) return await send(chatId, '⛔ Solo el dueño del bot puede usar este comando.');
+    if (!args) return await send(chatId, 'ℹ️ Usa: /allow @username o /allow 123456789');
 
     // Si es @username, intentar resolverlo
     const target = args.replace('@', '').trim();
@@ -604,22 +607,22 @@ async function cmdAllow(chatId, args, msg) {
     }
 
     if (isNaN(targetId)) {
-        return send(chatId, `❌ No pude encontrar a "${target}". Pídele que primero me envíe un mensaje al bot y luego intenta de nuevo.`);
+        return await send(chatId, `❌ No pude encontrar a "${target}". Pídele que primero me envíe un mensaje al bot y luego intenta de nuevo.`);
     }
 
     db.agregarAutorizado(targetId, target);
-    send(chatId, `✅ <b>Usuario autorizado!</b>\nID: ${targetId}\nYa puede usar el bot.`);
+    await send(chatId, `✅ <b>Usuario autorizado!</b>\nID: ${targetId}\nYa puede usar el bot.`);
 }
 
-function cmdDeny(chatId, args) {
-    if (!db.esOwner(chatId)) return send(chatId, '⛔ Solo el dueño del bot puede usar este comando.');
-    if (!args) return send(chatId, 'ℹ️ Usa: /deny @username o /deny 123456789');
+async function cmdDeny(chatId, args) {
+    if (!db.esOwner(chatId)) return await send(chatId, '⛔ Solo el dueño del bot puede usar este comando.');
+    if (!args) return await send(chatId, 'ℹ️ Usa: /deny @username o /deny 123456789');
 
     const target = parseInt(args.replace('@', '').trim());
-    if (isNaN(target)) return send(chatId, '❌ Especifica un ID numérico o @username');
+    if (isNaN(target)) return await send(chatId, '❌ Especifica un ID numérico o @username');
 
     db.quitarAutorizado(target);
-    send(chatId, `✅ Usuario ${target} removido del acceso.`);
+    await send(chatId, `✅ Usuario ${target} removido del acceso.`);
 }
 
 // ====== HANDLER PRINCIPAL ======
@@ -676,9 +679,6 @@ async function handleUpdate(update) {
     const nombre = msg.from?.first_name || 'Usuario';
 
     // Registrar al primer usuario como dueño
-    db.setOwner(chatId, nombre);
-
-    // Registrar al primer usuario como dueño
     const esOwner = db.setOwner(chatId, nombre);
 
     // Verificar autorización
@@ -692,7 +692,7 @@ async function handleUpdate(update) {
                 [{ text: '❌ Rechazar', callback_data: `deny:${chatId}:${nombre}` }]
             ]);
         }
-        return send(chatId, `🔐 <b>Acceso restringido</b>\n\nEste bot es privado del proyecto Casona Lo Blanco.\n\n⏳ Se ha enviado una solicitud al dueño. Espera su aprobación.`);
+        return await send(chatId, `🔐 <b>Acceso restringido</b>\n\nEste bot es privado del proyecto Casona Lo Blanco.\n\n⏳ Se ha enviado una solicitud al dueño. Espera su aprobación.`);
     }
 
     // === FOTOS ===
@@ -724,24 +724,24 @@ async function handleUpdate(update) {
     if (!text) return;
 
     // === COMANDOS ===
-    if (text === '/start' || text.startsWith('/start')) return cmdStart(chatId);
-    if (text === '/reporte') return cmdReporte(chatId);
-    if (text === '/planos') return cmdPlanos(chatId);
-    if (text === '/finanzas') return cmdFinanzas(chatId);
-    if (text === '/fase1') return cmdFase1(chatId);
-    if (text === '/proveedores') return cmdProveedores(chatId);
-    if (text === '/link' || text === '/links') return cmdLink(chatId);
-    if (text === '/boletas') return cmdBoletas(chatId);
-    if (text === '/gastos') return cmdGastos(chatId);
-    if (text === '/fotos') return cmdFotos(chatId);
-    if (text === '/stats') return cmdStats(chatId);
-    if (text.startsWith('/buscar ')) return cmdBuscar(chatId, text.replace('/buscar ', ''));
-    if (text === '/allowlist' || text === '/lista') return cmdAllowList(chatId);
+    if (text === '/start' || text.startsWith('/start')) return await cmdStart(chatId);
+    if (text === '/reporte') return await cmdReporte(chatId);
+    if (text === '/planos') return await cmdPlanos(chatId);
+    if (text === '/finanzas') return await cmdFinanzas(chatId);
+    if (text === '/fase1') return await cmdFase1(chatId);
+    if (text === '/proveedores') return await cmdProveedores(chatId);
+    if (text === '/link' || text === '/links') return await cmdLink(chatId);
+    if (text === '/boletas') return await cmdBoletas(chatId);
+    if (text === '/gastos') return await cmdGastos(chatId);
+    if (text === '/fotos') return await cmdFotos(chatId);
+    if (text === '/stats') return await cmdStats(chatId);
+    if (text.startsWith('/buscar ')) return await cmdBuscar(chatId, text.replace('/buscar ', ''));
+    if (text === '/allowlist' || text === '/lista') return await cmdAllowList(chatId);
     if (text.startsWith('/allow ')) return await cmdAllow(chatId, text.replace('/allow ', ''), msg);
     if (text.startsWith('/deny ')) return cmdDeny(chatId, text.replace('/deny ', ''));
 
     // === LINKS (YouTube, Instagram, etc) ===
-    const linkResult = procesarLink(chatId, text, msg);
+    const linkResult = await procesarLink(chatId, text, msg);
     if (linkResult) return;
 
     // === TEXTO GENÉRICO → guardar como nota ===
@@ -755,7 +755,7 @@ async function handleUpdate(update) {
     const data = db.leer();
     const totalNotas = data.notas.length;
 
-    send(chatId, `📝 <b>Nota guardada!</b>\n\n"${text.length > 80 ? text.substring(0, 80) + '...' : text}"\n\n📝 Total notas: ${totalNotas}\n📊 /stats — Ver todo\n🔍 /buscar <i>palabra</i> — Buscar en notas`);
+    await send(chatId, `📝 <b>Nota guardada!</b>\n\n"${text.length > 80 ? text.substring(0, 80) + '...' : text}"\n\n📝 Total notas: ${totalNotas}\n📊 /stats — Ver todo\n🔍 /buscar <i>palabra</i> — Buscar en notas`);
 }
 
 module.exports = { send, sendWithKeyboard, setCommands, handleUpdate, api };
